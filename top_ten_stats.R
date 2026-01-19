@@ -17,7 +17,7 @@ dir_word <- function(x) {
 
 # Format flash change - input is in thousands, output shows full number
 fmt_flash_change <- function(x) {
-  if (is.na(x)) return("—")
+  if (is.na(x)) return("-")
   full_val <- round(x * 1000, 0)
   format(abs(full_val), big.mark = ",")
 }
@@ -88,7 +88,7 @@ generate_top_ten <- function() {
     '{fmt_flash_change(payroll_flash_de)} since the 2024 election and {flash_dy_dir} {fmt_flash_change(payroll_flash_dy)} ',
     'compared to the same period a year ago, and {flash_dm_dir} ',
     '{fmt_flash_change(payroll_flash_dm)} from the previous month. This varies ',
-    'between sectors – changes in employee numbers on the year have been ',
+    'between sectors - changes in employee numbers on the year have been ',
     'concentrated in sectors such as hospitality and ',
     'retail which saw an annual change of {fmt_int(hosp_dy * 1000)} and ',
     '{fmt_int(retail_dy * 1000)} respectively. Employee numbers in the health and ',
@@ -162,7 +162,7 @@ generate_top_ten <- function() {
   line10 <- glue(
     'The Insolvency Service were notified of {fmt_int(hr1_cur)} ',
     'potential redundancies in {hr1_month_label}. This is ',
-    '{hr1_vs_prepandemic} the pre-pandemic average of 27,600 (Apr 2019 – Feb 2020).'
+    '{hr1_vs_prepandemic} the pre-pandemic average of 27,600 (Apr 2019 - Feb 2020).'
   )
   
   list(

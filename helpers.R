@@ -139,8 +139,8 @@ format_gbp_signed0 <- function(x) {
   if (is.na(x)) return(NA_character_)
   v <- round(as.numeric(x), 0)
   if (is.na(v)) return(NA_character_)
-  if (v == 0) return("£0")
-  paste0(ifelse(v > 0, "+£", "-£"), format(abs(v), big.mark = ","))
+  if (v == 0) return("GBP 0")
+  paste0(ifelse(v > 0, "+GBP ", "-GBP "), format(abs(v), big.mark = ","))
 }
 
 # ==============================================================================
@@ -174,7 +174,7 @@ format_pct1_unsigned <- function(x) {
 # ==============================================================================
 
 fmt_pct <- function(x) {
-  if (is.na(x)) return('—')
+  if (is.na(x)) return('-')
   v1 <- round(x, 1)
   if (v1 == 0 && x != 0) {
     v2 <- round(x, 2)
@@ -185,7 +185,7 @@ fmt_pct <- function(x) {
 }
 
 fmt_pp <- function(x) {
-  if (is.na(x)) return('—')
+  if (is.na(x)) return('-')
   v <- abs(x)
   v1 <- round(v, 1)
   if (v1 == 0 && v != 0) {
@@ -201,15 +201,15 @@ fmt_dir <- function(x, up_word = 'up', down_word = 'down') {
 }
 
 fmt_mill <- function(x) {
-  ifelse(is.na(x), '—', paste0(format(round(x, 1), nsmall = 1)))
+  ifelse(is.na(x), '-', paste0(format(round(x, 1), nsmall = 1)))
 }
 
 fmt_int <- function(x) {
-  ifelse(is.na(x), '—', format(round(x, 0), big.mark = ','))
+  ifelse(is.na(x), '-', format(round(x, 0), big.mark = ','))
 }
 
 fmt_one_dec <- function(x) {
-  if (is.na(x)) return("—")
+  if (is.na(x)) return("-")
   v1 <- round(x, 1)
   if (v1 == 0 && x != 0) {
     format(round(x, 2), nsmall = 2)

@@ -676,7 +676,7 @@ fetch_wages_total_wide <- function() {
   if (nrow(raw) == 0) return(tibble())
   
   code_names <- c(
-    "KAB9" = "AWE Total (£/week)",
+    "KAB9" = "AWE Total (GBP/week)",
     "KAC3" = "AWE Total YoY (%)",
     "KAC6" = "AWE Total Private YoY (%)",
     "KAC9" = "AWE Total Public YoY (%)"
@@ -704,7 +704,7 @@ fetch_wages_regular_wide <- function() {
   if (nrow(raw) == 0) return(tibble())
   
   code_names <- c(
-    "KAI7" = "AWE Regular (£/week)",
+    "KAI7" = "AWE Regular (GBP/week)",
     "KAI9" = "AWE Regular YoY (%)",
     "KAJ4" = "AWE Regular Private YoY (%)",
     "KAJ7" = "AWE Regular Public YoY (%)"

@@ -18,11 +18,11 @@ CPI_CURRENT <- list(
   TIME_BASIS          = "3 month average"
 )
 
-# For Change columns (Real AWE £, nan time_basis)
+# For Change columns (Real AWE GBP , nan time_basis)
 CPI_CHANGE <- list(
   TOTAL_EARNINGS_TYPE = "Total pay, seasonally adjusted",
   REG_EARNINGS_TYPE   = "Regular Pay, seasonally adjusted",
-  EARNINGS_METRIC     = "Real AWE(2015 £)",
+  EARNINGS_METRIC     = "Real AWE(2015 GBP )",
   TIME_BASIS          = "nan"
 )
 
@@ -75,7 +75,7 @@ val_cpi_current <- function(pg_data, period_label, earnings_type) {
 }
 
 # ------------------------------------------------------------------------------
-# LOOKUP - CHANGE COLUMNS (Real AWE £, nan time_basis)
+# LOOKUP - CHANGE COLUMNS (Real AWE GBP , nan time_basis)
 # ------------------------------------------------------------------------------
 
 val_cpi_raw <- function(pg_data, period_label, earnings_type) {

@@ -131,10 +131,10 @@ generate_summary <- function() {
 
 print_summary <- function(summary) {
   cat('\n')
-  cat('•', summary$line1, '\n\n')
-  cat('•', summary$line2, '\n\n')
-  cat('•', summary$line3, '\n\n')
-  cat('•', summary$line4, '\n\n')
-  cat('•', summary$line5, '\n\n')
-  cat('•', summary$line6, '\n\n')
+  cat('*', summary$line1, '\n\n')
+  cat('*', summary$line2, '\n\n')
+  cat('*', summary$line3, '\n\n')
+  cat('*', summary$line4, '\n\n')
+  cat('*', summary$line5, '\n\n')
+  cat('*', summary$line6, '\n\n')
 }
