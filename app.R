@@ -661,6 +661,41 @@ server <- function(input, output, session) {
           format(Sys.Date(), "%B %Y")
         }
 
+        lfs_label <- if (exists("lfs_period_label", envir = env)) {
+          get("lfs_period_label", envir = env)
+        } else {
+          ""
+        }
+
+        # Helper functions for dashboard
+        gv <- function(name) {
+          if (exists(name, envir = env)) get(name, envir = env) else NA_real_
+        }
+
+        fmt_num <- function(x, digits = 0) {
+          if (is.na(x)) return("-")
+          format(round(x, digits), big.mark = ",", nsmall = digits)
+        }
+
+        fmt_pct <- function(x) {
+          if (is.na(x)) return("-")
+          paste0(format(round(x, 1), nsmall = 1), "%")
+        }
+
+        fmt_chg <- function(x, divisor = 1, digits = 0, suffix = "") {
+          if (is.na(x)) return("-")
+          val <- x / divisor
+          sign <- if (val > 0) "+" else ""
+          paste0(sign, format(round(val, digits), big.mark = ",", nsmall = digits), suffix)
+        }
+
+        color_class <- function(x, invert = FALSE) {
+          if (is.na(x) || x == 0) return("")
+          positive <- x > 0
+          if (invert) positive <- !positive
+          if (positive) "doc-positive" else "doc-negative"
+        }
+
         incProgress(0.9, detail = "Rendering preview...")
 
         output$preview_output <- renderUI({
@@ -700,6 +735,81 @@ server <- function(input, output, session) {
                     tags$li(line)
                   }
                 })
+              )
+            ),
+
+            # Dashboard Table
+            div(class = "doc-section",
+              h3(class = "doc-section__title", paste("Dashboard -", lfs_label)),
+              tags$table(class = "doc-table",
+                tags$thead(
+                  tags$tr(
+                    tags$th(""),
+                    tags$th("Current"),
+                    tags$th("QoQ"),
+                    tags$th("YoY"),
+                    tags$th("vs COVID"),
+                    tags$th("vs Election")
+                  )
+                ),
+                tags$tbody(
+                  tags$tr(
+                    tags$td("Employment rate (16-64)"),
+                    tags$td(fmt_pct(gv("emp_rt_cur"))),
+                    tags$td(class = color_class(gv("emp_rt_dq")), fmt_chg(gv("emp_rt_dq"), 1, 1, "pp")),
+                    tags$td(class = color_class(gv("emp_rt_dy")), fmt_chg(gv("emp_rt_dy"), 1, 1, "pp")),
+                    tags$td(class = color_class(gv("emp_rt_dc")), fmt_chg(gv("emp_rt_dc"), 1, 1, "pp")),
+                    tags$td(class = color_class(gv("emp_rt_de")), fmt_chg(gv("emp_rt_de"), 1, 1, "pp"))
+                  ),
+                  tags$tr(
+                    tags$td("Unemployment rate (16+)"),
+                    tags$td(fmt_pct(gv("unemp_rt_cur"))),
+                    tags$td(class = color_class(gv("unemp_rt_dq"), TRUE), fmt_chg(gv("unemp_rt_dq"), 1, 1, "pp")),
+                    tags$td(class = color_class(gv("unemp_rt_dy"), TRUE), fmt_chg(gv("unemp_rt_dy"), 1, 1, "pp")),
+                    tags$td(class = color_class(gv("unemp_rt_dc"), TRUE), fmt_chg(gv("unemp_rt_dc"), 1, 1, "pp")),
+                    tags$td(class = color_class(gv("unemp_rt_de"), TRUE), fmt_chg(gv("unemp_rt_de"), 1, 1, "pp"))
+                  ),
+                  tags$tr(
+                    tags$td("Inactivity rate (16-64)"),
+                    tags$td(fmt_pct(gv("inact_rt_cur"))),
+                    tags$td(class = color_class(gv("inact_rt_dq"), TRUE), fmt_chg(gv("inact_rt_dq"), 1, 1, "pp")),
+                    tags$td(class = color_class(gv("inact_rt_dy"), TRUE), fmt_chg(gv("inact_rt_dy"), 1, 1, "pp")),
+                    tags$td(class = color_class(gv("inact_rt_dc"), TRUE), fmt_chg(gv("inact_rt_dc"), 1, 1, "pp")),
+                    tags$td(class = color_class(gv("inact_rt_de"), TRUE), fmt_chg(gv("inact_rt_de"), 1, 1, "pp"))
+                  ),
+                  tags$tr(
+                    tags$td("Vacancies (000s)"),
+                    tags$td(fmt_num(gv("vac_cur"))),
+                    tags$td(fmt_chg(gv("vac_dq"))),
+                    tags$td(fmt_chg(gv("vac_dy"))),
+                    tags$td(fmt_chg(gv("vac_dc"))),
+                    tags$td(fmt_chg(gv("vac_de")))
+                  ),
+                  tags$tr(
+                    tags$td("Payroll employees (000s)"),
+                    tags$td(fmt_num(gv("payroll_cur"))),
+                    tags$td(class = color_class(gv("payroll_dq")), fmt_chg(gv("payroll_dq"))),
+                    tags$td(class = color_class(gv("payroll_dy")), fmt_chg(gv("payroll_dy"))),
+                    tags$td(class = color_class(gv("payroll_dc")), fmt_chg(gv("payroll_dc"))),
+                    tags$td(class = color_class(gv("payroll_de")), fmt_chg(gv("payroll_de")))
+                  ),
+                  tags$tr(
+                    tags$td("Annual average wages (total pay)"),
+                    tags$td(fmt_pct(gv("latest_wages"))),
+                    tags$td(fmt_chg(gv("wages_change_q"), 1, 0, "pp")),
+                    tags$td(fmt_chg(gv("wages_change_y"), 1, 0, "pp")),
+                    tags$td("-"),
+                    tags$td("-")
+                  ),
+                  tags$tr(
+                    tags$td("Annual average wages CPI adjusted"),
+                    tags$td(fmt_pct(gv("latest_wages_cpi"))),
+                    tags$td(fmt_chg(gv("wages_cpi_change_q"), 1, 0, "pp")),
+                    tags$td(fmt_chg(gv("wages_cpi_change_y"), 1, 0, "pp")),
+                    tags$td("-"),
+                    tags$td("-")
+                  )
+                )
               )
             ),
 
