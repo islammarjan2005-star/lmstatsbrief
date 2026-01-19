@@ -153,14 +153,14 @@ ui <- fluidPage(
 
 server <- function(input, output, session) {
 
-  # Paths - all files are in root directory
-  config_path       <- "config.R"
-  calculations_path <- "calculations.R"
-  word_script_path  <- "word_output.R"
-  excel_script_path <- "excel_audit.R"
-  summary_path      <- "summary.R"
-  top_ten_path      <- "top_ten_stats.R"
-  template_path     <- "DB.docx"
+  # Paths relative to project root
+  config_path       <- "utils/config.R"
+  calculations_path <- "utils/calculations.R"
+  word_script_path  <- "utils/word_output.R"
+  excel_script_path <- "sheets/excel_audit.R"
+  summary_path      <- "sheets/summary.R"
+  top_ten_path      <- "sheets/top_ten_stats.R"
+  template_path     <- "utils/DB.docx"
 
   # Reactive values
   status <- reactiveVal(list(type = "info", message = "Ready. Click a button to begin."))

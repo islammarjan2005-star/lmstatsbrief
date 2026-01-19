@@ -6,23 +6,23 @@
 # ==============================================================================
 
 # Load common helpers
-source("helpers.R")
+source("utils/helpers.R")
 
 # Load config (for COVID/Election reference labels only)
-source("config.R")
+source("utils/config.R")
 
 # Load all sheets
-source("lfs.R")
-source("vacancies.R")
-source("payroll.R")
-source("wages_nominal.R")
-source("wages_cpi.R")
-source("days_lost.R")
-source("redundancy.R")
-source("sector_payroll.R")
-source("hr1.R")
-source("inactivity_reasons.R")
-source("summary.R")
+source("sheets/lfs.R")
+source("sheets/vacancies.R")
+source("sheets/payroll.R")
+source("sheets/wages_nominal.R")
+source("sheets/wages_cpi.R")
+source("sheets/days_lost.R")
+source("sheets/redundancy.R")
+source("sheets/sector_payroll.R")
+source("sheets/hr1.R")
+source("sheets/inactivity_reasons.R")
+source("sheets/summary.R")
 
 
 
