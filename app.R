@@ -21,7 +21,7 @@ ui <- fluidPage(
   theme = shinytheme("flatly"),
 
   # Premium CSS styling
- tags$head(
+  tags$head(
     tags$style(HTML("
       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
@@ -34,7 +34,7 @@ ui <- fluidPage(
       }
 
       .container-fluid {
-        max-width: 800px;
+        max-width: 900px;
         margin: 0 auto;
       }
 
@@ -109,6 +109,13 @@ ui <- fluidPage(
       .btn-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 32px;
+      }
+
+      .btn-grid-3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
         gap: 16px;
         margin-bottom: 32px;
       }
@@ -261,6 +268,152 @@ ui <- fluidPage(
         background: rgba(30, 58, 95, 0.05);
       }
 
+      /* Word Document Preview Styles */
+      .word-preview {
+        margin: 24px 40px 40px 40px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        overflow: hidden;
+      }
+
+      .word-page {
+        padding: 60px 70px;
+        font-family: 'Calibri', 'Segoe UI', sans-serif;
+        font-size: 11pt;
+        line-height: 1.5;
+        color: #333;
+        min-height: 600px;
+        background: white;
+        position: relative;
+      }
+
+      .word-page::before {
+        content: 'DOCUMENT PREVIEW';
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        font-size: 9px;
+        color: #999;
+        letter-spacing: 1px;
+        font-family: 'Inter', sans-serif;
+      }
+
+      .word-title {
+        font-size: 24pt;
+        font-weight: bold;
+        color: #1e3a5f;
+        text-align: center;
+        margin-bottom: 8px;
+        border-bottom: 3px solid #1e3a5f;
+        padding-bottom: 15px;
+      }
+
+      .word-subtitle {
+        font-size: 14pt;
+        color: #666;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .word-section-title {
+        font-size: 14pt;
+        font-weight: bold;
+        color: #1e3a5f;
+        margin: 25px 0 15px 0;
+        padding-bottom: 5px;
+        border-bottom: 1px solid #ddd;
+      }
+
+      .word-summary {
+        background: #f8f9fa;
+        padding: 20px;
+        border-left: 4px solid #1e3a5f;
+        margin: 20px 0;
+      }
+
+      .word-summary p {
+        margin: 8px 0;
+        font-size: 11pt;
+      }
+
+      .word-topten {
+        counter-reset: topten;
+        padding-left: 0;
+        list-style: none;
+      }
+
+      .word-topten li {
+        counter-increment: topten;
+        padding: 10px 0 10px 45px;
+        position: relative;
+        border-bottom: 1px solid #eee;
+      }
+
+      .word-topten li::before {
+        content: counter(topten);
+        position: absolute;
+        left: 0;
+        top: 8px;
+        width: 28px;
+        height: 28px;
+        background: #1e3a5f;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 12px;
+      }
+
+      .word-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        font-size: 10pt;
+      }
+
+      .word-table th {
+        background: #1e3a5f;
+        color: white;
+        padding: 10px 12px;
+        text-align: center;
+        font-weight: 600;
+        border: 1px solid #1e3a5f;
+      }
+
+      .word-table th:first-child {
+        text-align: left;
+      }
+
+      .word-table td {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        text-align: center;
+      }
+
+      .word-table td:first-child {
+        text-align: left;
+        font-weight: 500;
+      }
+
+      .word-table tr:nth-child(even) {
+        background: #f8f9fa;
+      }
+
+      .word-positive { color: #065f46; }
+      .word-negative { color: #991b1b; }
+
+      .word-footer {
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 1px solid #ddd;
+        font-size: 9pt;
+        color: #666;
+        text-align: center;
+      }
+
       .shiny-notification {
         border-radius: 12px;
         border: none;
@@ -303,12 +456,15 @@ ui <- fluidPage(
 
       # Preview section
       div(class = "section-title", "Preview"),
-      div(class = "btn-grid",
+      div(class = "btn-grid-3",
         actionButton("preview_top10",
-                     tagList(icon("list-ol"), "Top 10 Statistics"),
+                     tagList(icon("list-ol"), "Top 10"),
                      class = "btn-custom btn-preview"),
         actionButton("preview_dashboard",
-                     tagList(icon("table-columns"), "Dashboard Metrics"),
+                     tagList(icon("table-columns"), "Dashboard"),
+                     class = "btn-custom btn-preview"),
+        actionButton("preview_word",
+                     tagList(icon("file-lines"), "Document"),
                      class = "btn-custom btn-preview")
       ),
 
@@ -533,6 +689,201 @@ server <- function(input, output, session) {
 
         incProgress(1.0, detail = "Complete!")
         status(list(type = "success", message = "Dashboard preview generated successfully"))
+      }, error = function(e) {
+        status(list(type = "error", message = paste("Error:", e$message)))
+        output$preview_output <- renderUI(NULL)
+      })
+    })
+  })
+
+  # Preview Word Document
+  observeEvent(input$preview_word, {
+    withProgress(message = "Generating Document Preview", value = 0, {
+      tryCatch({
+        incProgress(0.1, detail = "Loading calculations...")
+        env <- new.env()
+        source(calculations_path, local = env)
+        cached_env(env)
+
+        incProgress(0.3, detail = "Loading summary generator...")
+        source(summary_path, local = env)
+
+        incProgress(0.4, detail = "Loading top ten generator...")
+        source(top_ten_path, local = env)
+
+        incProgress(0.5, detail = "Generating summary...")
+        summary <- env$generate_summary()
+
+        incProgress(0.6, detail = "Generating top 10...")
+        top10 <- env$generate_top_ten()
+
+        incProgress(0.8, detail = "Building document preview...")
+
+        # Helper to get value or NA
+        gv <- function(name) {
+          if (exists(name, envir = env)) get(name, envir = env) else NA_real_
+        }
+
+        # Format helpers
+        fmt_k <- function(x) {
+          if (is.na(x)) return("-")
+          format(round(x / 1000), big.mark = ",")
+        }
+        fmt_pct <- function(x) {
+          if (is.na(x)) return("-")
+          paste0(format(round(x, 1), nsmall = 1), "%")
+        }
+        fmt_chg <- function(x, is_pct = FALSE) {
+          if (is.na(x)) return("-")
+          sign <- if (x > 0) "+" else ""
+          if (is_pct) {
+            paste0(sign, format(round(x, 1), nsmall = 1), "pp")
+          } else {
+            paste0(sign, format(round(x / 1000), big.mark = ","))
+          }
+        }
+        color_class <- function(x, invert = FALSE) {
+          if (is.na(x) || x == 0) return("")
+          positive <- x > 0
+          if (invert) positive <- !positive
+          if (positive) "word-positive" else "word-negative"
+        }
+
+        briefing_label <- if (exists("briefing_release_label", envir = env)) {
+          get("briefing_release_label", envir = env)
+        } else {
+          format(Sys.Date(), "%B %Y")
+        }
+
+        lfs_label <- if (exists("lfs_period_label", envir = env)) {
+          get("lfs_period_label", envir = env)
+        } else {
+          ""
+        }
+
+        incProgress(0.9, detail = "Rendering preview...")
+
+        output$preview_output <- renderUI({
+          div(class = "word-preview",
+            div(class = "word-page",
+
+              # Title
+              div(class = "word-title", "Labour Market Statistics Briefing"),
+              div(class = "word-subtitle", briefing_label),
+
+              # Summary Section
+              div(class = "word-section-title", "Executive Summary"),
+              div(class = "word-summary",
+                lapply(1:6, function(i) {
+                  line <- summary[[paste0("line", i)]]
+                  if (!is.null(line) && nchar(line) > 0) {
+                    p(line)
+                  }
+                })
+              ),
+
+              # Top 10 Section
+              div(class = "word-section-title", "Top 10 Statistics"),
+              tags$ol(class = "word-topten",
+                lapply(1:10, function(i) {
+                  line <- top10[[paste0("line", i)]]
+                  if (!is.null(line) && nchar(line) > 0) {
+                    tags$li(line)
+                  }
+                })
+              ),
+
+              # Dashboard Table
+              div(class = "word-section-title", paste("Key Metrics -", lfs_label)),
+              tags$table(class = "word-table",
+                tags$thead(
+                  tags$tr(
+                    tags$th("Metric"),
+                    tags$th("Current"),
+                    tags$th("QoQ"),
+                    tags$th("YoY"),
+                    tags$th("vs COVID"),
+                    tags$th("vs Election")
+                  )
+                ),
+                tags$tbody(
+                  tags$tr(
+                    tags$td("Employment (000s)"),
+                    tags$td(fmt_k(gv("emp16_cur"))),
+                    tags$td(class = color_class(gv("emp16_dq")), fmt_chg(gv("emp16_dq"))),
+                    tags$td(class = color_class(gv("emp16_dy")), fmt_chg(gv("emp16_dy"))),
+                    tags$td(class = color_class(gv("emp16_dc")), fmt_chg(gv("emp16_dc"))),
+                    tags$td(class = color_class(gv("emp16_de")), fmt_chg(gv("emp16_de")))
+                  ),
+                  tags$tr(
+                    tags$td("Employment Rate"),
+                    tags$td(fmt_pct(gv("emp_rt_cur"))),
+                    tags$td(class = color_class(gv("emp_rt_dq")), fmt_chg(gv("emp_rt_dq"), TRUE)),
+                    tags$td(class = color_class(gv("emp_rt_dy")), fmt_chg(gv("emp_rt_dy"), TRUE)),
+                    tags$td(class = color_class(gv("emp_rt_dc")), fmt_chg(gv("emp_rt_dc"), TRUE)),
+                    tags$td(class = color_class(gv("emp_rt_de")), fmt_chg(gv("emp_rt_de"), TRUE))
+                  ),
+                  tags$tr(
+                    tags$td("Unemployment (000s)"),
+                    tags$td(fmt_k(gv("unemp16_cur"))),
+                    tags$td(class = color_class(gv("unemp16_dq"), TRUE), fmt_chg(gv("unemp16_dq"))),
+                    tags$td(class = color_class(gv("unemp16_dy"), TRUE), fmt_chg(gv("unemp16_dy"))),
+                    tags$td(class = color_class(gv("unemp16_dc"), TRUE), fmt_chg(gv("unemp16_dc"))),
+                    tags$td(class = color_class(gv("unemp16_de"), TRUE), fmt_chg(gv("unemp16_de")))
+                  ),
+                  tags$tr(
+                    tags$td("Unemployment Rate"),
+                    tags$td(fmt_pct(gv("unemp_rt_cur"))),
+                    tags$td(class = color_class(gv("unemp_rt_dq"), TRUE), fmt_chg(gv("unemp_rt_dq"), TRUE)),
+                    tags$td(class = color_class(gv("unemp_rt_dy"), TRUE), fmt_chg(gv("unemp_rt_dy"), TRUE)),
+                    tags$td(class = color_class(gv("unemp_rt_dc"), TRUE), fmt_chg(gv("unemp_rt_dc"), TRUE)),
+                    tags$td(class = color_class(gv("unemp_rt_de"), TRUE), fmt_chg(gv("unemp_rt_de"), TRUE))
+                  ),
+                  tags$tr(
+                    tags$td("Inactivity (000s)"),
+                    tags$td(fmt_k(gv("inact_cur"))),
+                    tags$td(class = color_class(gv("inact_dq"), TRUE), fmt_chg(gv("inact_dq"))),
+                    tags$td(class = color_class(gv("inact_dy"), TRUE), fmt_chg(gv("inact_dy"))),
+                    tags$td(class = color_class(gv("inact_dc"), TRUE), fmt_chg(gv("inact_dc"))),
+                    tags$td(class = color_class(gv("inact_de"), TRUE), fmt_chg(gv("inact_de")))
+                  ),
+                  tags$tr(
+                    tags$td("Inactivity Rate"),
+                    tags$td(fmt_pct(gv("inact_rt_cur"))),
+                    tags$td(class = color_class(gv("inact_rt_dq"), TRUE), fmt_chg(gv("inact_rt_dq"), TRUE)),
+                    tags$td(class = color_class(gv("inact_rt_dy"), TRUE), fmt_chg(gv("inact_rt_dy"), TRUE)),
+                    tags$td(class = color_class(gv("inact_rt_dc"), TRUE), fmt_chg(gv("inact_rt_dc"), TRUE)),
+                    tags$td(class = color_class(gv("inact_rt_de"), TRUE), fmt_chg(gv("inact_rt_de"), TRUE))
+                  ),
+                  tags$tr(
+                    tags$td("Vacancies (000s)"),
+                    tags$td(format(round(gv("vac_cur")), big.mark = ",")),
+                    tags$td(format(round(gv("vac_dq")), big.mark = ",")),
+                    tags$td(format(round(gv("vac_dy")), big.mark = ",")),
+                    tags$td(format(round(gv("vac_dc")), big.mark = ",")),
+                    tags$td(format(round(gv("vac_de")), big.mark = ","))
+                  ),
+                  tags$tr(
+                    tags$td("Payroll (000s)"),
+                    tags$td(format(round(gv("payroll_cur")), big.mark = ",")),
+                    tags$td(class = color_class(gv("payroll_dq")), paste0(if(gv("payroll_dq") > 0) "+" else "", round(gv("payroll_dq")))),
+                    tags$td(class = color_class(gv("payroll_dy")), paste0(if(gv("payroll_dy") > 0) "+" else "", round(gv("payroll_dy")))),
+                    tags$td(class = color_class(gv("payroll_dc")), paste0(if(gv("payroll_dc") > 0) "+" else "", round(gv("payroll_dc")))),
+                    tags$td(class = color_class(gv("payroll_de")), paste0(if(gv("payroll_de") > 0) "+" else "", round(gv("payroll_de"))))
+                  )
+                )
+              ),
+
+              # Footer
+              div(class = "word-footer",
+                paste("Generated:", format(Sys.Date(), "%d %B %Y"), "| Source: ONS Labour Market Statistics")
+              )
+            )
+          )
+        })
+
+        incProgress(1.0, detail = "Complete!")
+        status(list(type = "success", message = "Document preview generated successfully"))
       }, error = function(e) {
         status(list(type = "error", message = paste("Error:", e$message)))
         output$preview_output <- renderUI(NULL)
