@@ -754,12 +754,28 @@ server <- function(input, output, session) {
                 ),
                 tags$tbody(
                   tags$tr(
+                    tags$td("Employment 16+ (000s)"),
+                    tags$td(fmt_num(gv("emp16_cur") / 1000)),
+                    tags$td(class = color_class(gv("emp16_dq")), fmt_chg(gv("emp16_dq"), 1000)),
+                    tags$td(class = color_class(gv("emp16_dy")), fmt_chg(gv("emp16_dy"), 1000)),
+                    tags$td(class = color_class(gv("emp16_dc")), fmt_chg(gv("emp16_dc"), 1000)),
+                    tags$td(class = color_class(gv("emp16_de")), fmt_chg(gv("emp16_de"), 1000))
+                  ),
+                  tags$tr(
                     tags$td("Employment rate (16-64)"),
                     tags$td(fmt_pct(gv("emp_rt_cur"))),
                     tags$td(class = color_class(gv("emp_rt_dq")), fmt_chg(gv("emp_rt_dq"), 1, 1, "pp")),
                     tags$td(class = color_class(gv("emp_rt_dy")), fmt_chg(gv("emp_rt_dy"), 1, 1, "pp")),
                     tags$td(class = color_class(gv("emp_rt_dc")), fmt_chg(gv("emp_rt_dc"), 1, 1, "pp")),
                     tags$td(class = color_class(gv("emp_rt_de")), fmt_chg(gv("emp_rt_de"), 1, 1, "pp"))
+                  ),
+                  tags$tr(
+                    tags$td("Unemployment 16+ (000s)"),
+                    tags$td(fmt_num(gv("unemp16_cur") / 1000)),
+                    tags$td(class = color_class(gv("unemp16_dq"), TRUE), fmt_chg(gv("unemp16_dq"), 1000)),
+                    tags$td(class = color_class(gv("unemp16_dy"), TRUE), fmt_chg(gv("unemp16_dy"), 1000)),
+                    tags$td(class = color_class(gv("unemp16_dc"), TRUE), fmt_chg(gv("unemp16_dc"), 1000)),
+                    tags$td(class = color_class(gv("unemp16_de"), TRUE), fmt_chg(gv("unemp16_de"), 1000))
                   ),
                   tags$tr(
                     tags$td("Unemployment rate (16+)"),
