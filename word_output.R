@@ -64,27 +64,6 @@ fmt_count_000s_change <- function(x) fmt_int_signed(x / 1000)
 fmt_exempt_current <- function(x) .format_int(x)
 fmt_exempt_change <- function(x) fmt_int_signed(x)
 
-# manual_month like "oct2025" or "2025-10" -> "October 2025"
-manual_month_to_label <- function(x) {
-  if (is.null(x) || length(x) == 0 || is.na(x)) return("")
-  x <- tolower(as.character(x))
-  if (grepl("^[0-9]{4}-[0-9]{2}$", x)) {
-    parts <- strsplit(x, "-", fixed = TRUE)[[1]]
-    d <- as.Date(sprintf("%s-%s-01", parts[1], parts[2]))
-    return(format(d, "%B %Y"))
-  }
-  if (grepl("^[a-z]{3}[0-9]{4}$", x)) {
-    mon <- substr(x, 1, 3)
-    yr <- substr(x, 4, 7)
-    month_map <- c(jan=1,feb=2,mar=3,apr=4,may=5,jun=6,jul=7,aug=8,sep=9,oct=10,nov=11,dec=12)
-    if (mon %in% names(month_map)) {
-      d <- as.Date(sprintf("%s-%02d-01", yr, month_map[[mon]]))
-      return(format(d, "%B %Y"))
-    }
-  }
-  paste0(toupper(substr(x, 1, 1)), substr(x, 2, nchar(x)))
-}
-
 # ----------------------------
 # Word replacement helpers
 # ----------------------------
@@ -100,9 +79,9 @@ replace_all <- function(doc, key, val) {
 fill_conditional <- function(doc, base, value_text, value_num, invert = FALSE, neutral = FALSE) {
   value_num <- suppressWarnings(as.numeric(value_num))
   if (is.na(value_num)) value_num <- 0
-  
+
   p <- n <- z <- ""
-  
+
   if (isTRUE(neutral)) {
     z <- value_text
   } else {
@@ -113,7 +92,7 @@ fill_conditional <- function(doc, base, value_text, value_num, invert = FALSE, n
       tmp <- p; p <- n; n <- tmp
     }
   }
-  
+
   doc <- replace_all(doc, paste0(base, "_p"), p)
   doc <- replace_all(doc, paste0(base, "_n"), n)
   doc <- replace_all(doc, paste0(base, "_z"), z)
@@ -130,124 +109,122 @@ generate_word_output <- function(template_path = "utils/DB.docx",
                                  config_path = "utils/config.R",
                                  summary_path = "sheets/summary.R",
                                  top_ten_path = "sheets/top_ten_stats.R",
-                                 manual_month_override = NULL,
-                                 manual_month_hr1_override = NULL,
                                  verbose = TRUE) {
-  
-  # Source config first
-  source(config_path, local = FALSE)
-  
-  if (!is.null(manual_month_override)) manual_month <<- tolower(manual_month_override)
-  if (!is.null(manual_month_hr1_override)) manual_month_hr1 <<- tolower(manual_month_hr1_override)
-  
-  if (verbose && exists("manual_month", inherits = TRUE)) message("[word_output] manual_month = ", manual_month)
-  
-  # Source calculations (this sources helpers.R and all sheets)
+
+  # Source calculations (this sources helpers.R, config.R, and all sheets)
   source(calculations_path, local = FALSE)
-  
+
   # Source summary and top ten
   source(summary_path, local = FALSE)
   source(top_ten_path, local = FALSE)
   summary <- generate_summary()
   top10 <- generate_top_ten()
-  
+
   doc <- read_docx(template_path)
-  
-  title_label <- if (exists("manual_month", inherits = TRUE)) manual_month_to_label(manual_month) else ""
+
+  # Z1 is the briefing release label (dynamically calculated from LFS data)
+  title_label <- if (exists("briefing_release_label", inherits = TRUE)) {
+    briefing_release_label
+  } else {
+    format(Sys.Date(), "%B %Y")
+  }
+
+  if (verbose) message("[word_output] Briefing release: ", title_label)
+
   doc <- replace_all(doc, "Z1", title_label)
   if (exists("lfs_period_label", inherits = TRUE)) doc <- replace_all(doc, "LFS_PERIOD_LABEL", lfs_period_label)
-  
+
   for (i in 1:6) doc <- replace_all(doc, paste0("sl", i), summary[[paste0("line", i)]])
   for (i in 10:1) doc <- replace_all(doc, paste0("tt", i), top10[[paste0("line", i)]])
-  
+
   doc <- replace_all(doc, "RENDER_DATE", format(Sys.Date(), "%d %B %Y"))
-  
+
   # CURRENT (no conditional except vacancies)
   doc <- replace_all(doc, "B1", fmt_count_000s_current(emp16_cur))
   doc <- replace_all(doc, "C1", .format_pct(emp_rt_cur))
-  
+
   doc <- replace_all(doc, "D1", fmt_count_000s_current(unemp16_cur))
   doc <- replace_all(doc, "E1", .format_pct(unemp_rt_cur))
-  
+
   doc <- replace_all(doc, "F1", fmt_count_000s_current(inact_cur))
   doc <- replace_all(doc, "G1", fmt_count_000s_current(inact5064_cur))
   doc <- replace_all(doc, "H1", .format_pct(inact_rt_cur))
   doc <- replace_all(doc, "I1", .format_pct(inact5064_rt_cur))
-  
+
   doc <- replace_all(doc, "K1", fmt_exempt_current(payroll_cur))
-  
+
   # Vacancies current is conditional tokens (neutral)
   doc <- fill_conditional(doc, "J1", fmt_exempt_current(vac_cur), 0, neutral = TRUE)
-  
+
   doc <- replace_all(doc, "L1", .format_pct(latest_wages))
   doc <- replace_all(doc, "M1", .format_pct(latest_wages_cpi))
-  
+
   # DQ/DY/DC conditional
   doc <- fill_conditional(doc, "B2", fmt_count_000s_change(emp16_dq), emp16_dq, invert = FALSE)
   doc <- fill_conditional(doc, "B3", fmt_count_000s_change(emp16_dy), emp16_dy, invert = FALSE)
   doc <- fill_conditional(doc, "B4", fmt_count_000s_change(emp16_dc), emp16_dc, invert = FALSE)
-  
+
   doc <- fill_conditional(doc, "C2", .format_pp(emp_rt_dq), emp_rt_dq, invert = FALSE)
   doc <- fill_conditional(doc, "C3", .format_pp(emp_rt_dy), emp_rt_dy, invert = FALSE)
   doc <- fill_conditional(doc, "C4", .format_pp(emp_rt_dc), emp_rt_dc, invert = FALSE)
-  
+
   doc <- fill_conditional(doc, "D2", fmt_count_000s_change(unemp16_dq), unemp16_dq, invert = TRUE)
   doc <- fill_conditional(doc, "D3", fmt_count_000s_change(unemp16_dy), unemp16_dy, invert = TRUE)
   doc <- fill_conditional(doc, "D4", fmt_count_000s_change(unemp16_dc), unemp16_dc, invert = TRUE)
-  
+
   doc <- fill_conditional(doc, "E2", .format_pp(unemp_rt_dq), unemp_rt_dq, invert = TRUE)
   doc <- fill_conditional(doc, "E3", .format_pp(unemp_rt_dy), unemp_rt_dy, invert = TRUE)
   doc <- fill_conditional(doc, "E4", .format_pp(unemp_rt_dc), unemp_rt_dc, invert = TRUE)
-  
+
   doc <- fill_conditional(doc, "F2", fmt_count_000s_change(inact_dq), inact_dq, invert = TRUE)
   doc <- fill_conditional(doc, "F3", fmt_count_000s_change(inact_dy), inact_dy, invert = TRUE)
   doc <- fill_conditional(doc, "F4", fmt_count_000s_change(inact_dc), inact_dc, invert = TRUE)
-  
+
   doc <- fill_conditional(doc, "G2", fmt_count_000s_change(inact5064_dq), inact5064_dq, invert = TRUE)
   doc <- fill_conditional(doc, "G3", fmt_count_000s_change(inact5064_dy), inact5064_dy, invert = TRUE)
   doc <- fill_conditional(doc, "G4", fmt_count_000s_change(inact5064_dc), inact5064_dc, invert = TRUE)
-  
+
   doc <- fill_conditional(doc, "H2", .format_pp(inact_rt_dq), inact_rt_dq, invert = TRUE)
   doc <- fill_conditional(doc, "H3", .format_pp(inact_rt_dy), inact_rt_dy, invert = TRUE)
   doc <- fill_conditional(doc, "H4", .format_pp(inact_rt_dc), inact_rt_dc, invert = TRUE)
-  
+
   doc <- fill_conditional(doc, "I2", .format_pp(inact5064_rt_dq), inact5064_rt_dq, invert = TRUE)
   doc <- fill_conditional(doc, "I3", .format_pp(inact5064_rt_dy), inact5064_rt_dy, invert = TRUE)
   doc <- fill_conditional(doc, "I4", .format_pp(inact5064_rt_dc), inact5064_rt_dc, invert = TRUE)
-  
+
   doc <- fill_conditional(doc, "K2", fmt_exempt_change(payroll_dq), payroll_dq, invert = FALSE)
   doc <- fill_conditional(doc, "K3", fmt_exempt_change(payroll_dy), payroll_dy, invert = FALSE)
   doc <- fill_conditional(doc, "K4", fmt_exempt_change(payroll_dc), payroll_dc, invert = FALSE)
-  
+
   # Vacancies neutral across changes
   doc <- fill_conditional(doc, "J2", fmt_exempt_change(vac_dq), 0, neutral = TRUE)
   doc <- fill_conditional(doc, "J3", fmt_exempt_change(vac_dy), 0, neutral = TRUE)
   doc <- fill_conditional(doc, "J4", fmt_exempt_change(vac_dc), 0, neutral = TRUE)
-  
+
   doc <- fill_conditional(doc, "L2", .format_gbp_signed0(wages_change_q), wages_change_q, invert = FALSE)
   doc <- fill_conditional(doc, "L3", .format_gbp_signed0(wages_change_y), wages_change_y, invert = FALSE)
   doc <- fill_conditional(doc, "L4", .format_gbp_signed0(wages_change_covid), wages_change_covid, invert = FALSE)
-  
+
   doc <- fill_conditional(doc, "M2", .format_gbp_signed0(wages_cpi_change_q), wages_cpi_change_q, invert = FALSE)
   doc <- fill_conditional(doc, "M3", .format_gbp_signed0(wages_cpi_change_y), wages_cpi_change_y, invert = FALSE)
   doc <- fill_conditional(doc, "M4", .format_gbp_signed0(wages_cpi_change_covid), wages_cpi_change_covid, invert = FALSE)
-  
+
   # Election column
   if (exists("emp16_de", inherits = TRUE)) {
     doc <- fill_conditional(doc, "B5", fmt_count_000s_change(emp16_de), emp16_de, invert = FALSE)
     doc <- fill_conditional(doc, "C5", .format_pp(emp_rt_de), emp_rt_de, invert = FALSE)
-    
+
     doc <- fill_conditional(doc, "D5", fmt_count_000s_change(unemp16_de), unemp16_de, invert = TRUE)
     doc <- fill_conditional(doc, "E5", .format_pp(unemp_rt_de), unemp_rt_de, invert = TRUE)
-    
+
     doc <- fill_conditional(doc, "F5", fmt_count_000s_change(inact_de), inact_de, invert = TRUE)
     doc <- fill_conditional(doc, "G5", fmt_count_000s_change(inact5064_de), inact5064_de, invert = TRUE)
     doc <- fill_conditional(doc, "H5", .format_pp(inact_rt_de), inact_rt_de, invert = TRUE)
     doc <- fill_conditional(doc, "I5", .format_pp(inact5064_rt_de), inact5064_rt_de, invert = TRUE)
-    
+
     doc <- fill_conditional(doc, "K5", fmt_exempt_change(payroll_de), payroll_de, invert = FALSE)
     doc <- fill_conditional(doc, "J5", fmt_exempt_change(vac_de), 0, neutral = TRUE)
-    
+
     if (exists("wages_change_election", inherits = TRUE)) {
       doc <- fill_conditional(doc, "L5", .format_gbp_signed0(wages_change_election), wages_change_election, invert = FALSE)
     }
@@ -255,12 +232,7 @@ generate_word_output <- function(template_path = "utils/DB.docx",
       doc <- fill_conditional(doc, "M5", .format_gbp_signed0(wages_cpi_change_election), wages_cpi_change_election, invert = FALSE)
     }
   }
-  
+
   print(doc, target = output_path)
   invisible(output_path)
 }
-
-# ==============================================================================
-# RUN - From project root directory
-# ==============================================================================
- generate_word_output()

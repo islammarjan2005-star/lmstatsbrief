@@ -29,7 +29,7 @@ WAGES_NOM_CODES <- list(
 
 fetch_wages_total <- function() {
   conn <- DBI::dbConnect(RPostgres::Postgres())
-  
+
   tryCatch({
     query <- 'SELECT time_period, dataset_indentifier_code, value
               FROM "ons"."labour_market__weekly_earnings_total"'
@@ -51,7 +51,7 @@ fetch_wages_total <- function() {
 
 fetch_wages_regular <- function() {
   conn <- DBI::dbConnect(RPostgres::Postgres())
-  
+
   tryCatch({
     query <- 'SELECT time_period, dataset_indentifier_code, value
 FROM \"ons\".\"labour_market__weekly_earnings_regular\"'
@@ -86,81 +86,104 @@ get_nom_avg <- function(pg_data, dates, code) {
 }
 
 # ------------------------------------------------------------------------------
+# FIND LATEST PERIOD
+# ------------------------------------------------------------------------------
+
+find_latest_wages_period <- function(pg_data, code) {
+  wages_data <- pg_data %>%
+    filter(dataset_indentifier_code == code) %>%
+    mutate(parsed_date = as.Date(time_period)) %>%
+    filter(!is.na(parsed_date)) %>%
+    arrange(desc(parsed_date))
+
+  if (nrow(wages_data) == 0) return(NULL)
+
+  wages_data$parsed_date[1]
+}
+
+# ------------------------------------------------------------------------------
 # COMPUTE
 # ------------------------------------------------------------------------------
 
-compute_wages_nominal <- function(pg_total, pg_regular, manual_mm) {
-  cm <- parse_manual_month(manual_mm)
-  
-  anchor_m <- cm %m-% months(2)
+compute_wages_nominal <- function(pg_total, pg_regular) {
+  # Find latest period dynamically
+  anchor_m <- find_latest_wages_period(pg_total, WAGES_NOM_CODES$YOY_TOTAL)
+
+  if (is.null(anchor_m)) {
+    empty <- list(cur = NA_real_, dq = NA_real_, dy = NA_real_,
+                  dc = NA_real_, de = NA_real_, public = NA_real_,
+                  private = NA_real_, qchange = NA_real_)
+    return(list(total = empty, regular = empty, anchor = NA))
+  }
+
   prev_q_anchor <- anchor_m %m-% months(3)
-  
+
   win3 <- seq(anchor_m, by = "-1 month", length.out = 3)
   prev3 <- seq(anchor_m %m-% months(3), by = "-1 month", length.out = 3)
   yago3 <- seq(anchor_m %m-% months(12), by = "-1 month", length.out = 3)
   covid3 <- c(as.Date("2020-02-01"), as.Date("2020-01-01"), as.Date("2019-12-01"))
   election3 <- c(as.Date("2024-06-01"), as.Date("2024-05-01"), as.Date("2024-04-01"))
-  
+
   # Total pay YoY % (from total table)
   latest_total <- get_nom_val(pg_total, anchor_m, WAGES_NOM_CODES$YOY_TOTAL)
-  
+
   # Public/Private sector YoY % (current)
   total_public <- get_nom_val(pg_total, anchor_m, WAGES_NOM_CODES$YOY_TOTAL_PUBLIC)
   total_private <- get_nom_val(pg_total, anchor_m, WAGES_NOM_CODES$YOY_TOTAL_PRIVATE)
-  
+
   # Quarterly comparison for total YoY %
   total_prev_q <- get_nom_val(pg_total, prev_q_anchor, WAGES_NOM_CODES$YOY_TOTAL)
   total_qchange <- if (!is.na(latest_total) && !is.na(total_prev_q)) latest_total - total_prev_q else NA_real_
-  
+
   calc_change_total <- function(dates_a, dates_b, code) {
     a <- get_nom_avg(pg_total, dates_a, code)
     b <- get_nom_avg(pg_total, dates_b, code)
     if (is.na(a) || is.na(b)) NA_real_ else (a - b) * 52
   }
-  
+
   total_dq <- calc_change_total(win3, prev3, WAGES_NOM_CODES$WEEKLY_TOTAL)
   total_dy <- calc_change_total(win3, yago3, WAGES_NOM_CODES$WEEKLY_TOTAL)
   total_dc <- calc_change_total(win3, covid3, WAGES_NOM_CODES$WEEKLY_TOTAL)
   total_de <- calc_change_total(win3, election3, WAGES_NOM_CODES$WEEKLY_TOTAL)
-  
+
   # Regular pay YoY % (from regular table)
   latest_reg <- get_nom_val(pg_regular, anchor_m, WAGES_NOM_CODES$YOY_REG)
-  
+
   # Public/Private sector regular YoY %
   reg_public <- get_nom_val(pg_regular, anchor_m, WAGES_NOM_CODES$YOY_REG_PUBLIC)
   reg_private <- get_nom_val(pg_regular, anchor_m, WAGES_NOM_CODES$YOY_REG_PRIVATE)
-  
+
   # Quarterly comparison for regular YoY %
   reg_prev_q <- get_nom_val(pg_regular, prev_q_anchor, WAGES_NOM_CODES$YOY_REG)
   reg_qchange <- if (!is.na(latest_reg) && !is.na(reg_prev_q)) latest_reg - reg_prev_q else NA_real_
-  
+
   calc_change_reg <- function(dates_a, dates_b, code) {
     a <- get_nom_avg(pg_regular, dates_a, code)
     b <- get_nom_avg(pg_regular, dates_b, code)
     if (is.na(a) || is.na(b)) NA_real_ else (a - b) * 52
   }
-  
+
   reg_dq <- calc_change_reg(win3, prev3, WAGES_NOM_CODES$WEEKLY_REG)
   reg_dy <- calc_change_reg(win3, yago3, WAGES_NOM_CODES$WEEKLY_REG)
   reg_dc <- calc_change_reg(win3, covid3, WAGES_NOM_CODES$WEEKLY_REG)
   reg_de <- calc_change_reg(win3, election3, WAGES_NOM_CODES$WEEKLY_REG)
-  
+
   list(
     total = list(
-      cur = latest_total, 
-      dq = total_dq, 
-      dy = total_dy, 
-      dc = total_dc, 
+      cur = latest_total,
+      dq = total_dq,
+      dy = total_dy,
+      dc = total_dc,
       de = total_de,
       public = total_public,
       private = total_private,
       qchange = total_qchange
     ),
     regular = list(
-      cur = latest_reg, 
-      dq = reg_dq, 
-      dy = reg_dy, 
-      dc = reg_dc, 
+      cur = latest_reg,
+      dq = reg_dq,
+      dy = reg_dy,
+      dc = reg_dc,
       de = reg_de,
       public = reg_public,
       private = reg_private,
@@ -174,8 +197,8 @@ compute_wages_nominal <- function(pg_total, pg_regular, manual_mm) {
 # CALCULATE WAGES NOMINAL
 # ------------------------------------------------------------------------------
 
-calculate_wages_nominal <- function(manual_mm) {
+calculate_wages_nominal <- function() {
   pg_total <- fetch_wages_total()
   pg_regular <- fetch_wages_regular()
-  compute_wages_nominal(pg_total, pg_regular, manual_mm)
+  compute_wages_nominal(pg_total, pg_regular)
 }

@@ -2,15 +2,14 @@
 # CALCULATIONS - Sources all sheets and computes all metrics
 # ==============================================================================
 # RUN FROM: Project root directory
+# All dates are now determined dynamically from the database
 # ==============================================================================
 
 # Load common helpers
 source("utils/helpers.R")
 
-# Load config
-if (!exists("manual_month", inherits = TRUE)) {
-  source("utils/config.R")
-}
+# Load config (for COVID/Election reference labels only)
+source("utils/config.R")
 
 # Load all sheets
 source("sheets/lfs.R")
@@ -28,45 +27,44 @@ source("sheets/summary.R")
 
 
 # ==============================================================================
-# CALCULATE ALL METRICS
+# CALCULATE ALL METRICS (no manual_month - all dynamic)
 # ==============================================================================
 
 # LFS metrics (employment, unemployment, inactivity)
-lfs <- calculate_lfs(manual_month)
+lfs <- calculate_lfs()
 
 # Vacancies
-vac <- calculate_vacancies(manual_month)
+vac <- calculate_vacancies()
 
 # Payrolled employees
-payroll <- calculate_payroll(manual_month)
+payroll <- calculate_payroll()
 
 # Nominal wages (total + regular)
-wages_nom <- calculate_wages_nominal(manual_month)
+wages_nom <- calculate_wages_nominal()
 
 # CPI-adjusted wages (total + regular)
-wages_cpi <- calculate_wages_cpi(manual_month)
+wages_cpi <- calculate_wages_cpi()
 
 # Working days lost
-days_lost <- calculate_days_lost(manual_month)
+days_lost <- calculate_days_lost()
 
 # Redundancy (LFS)
-redund <- calculate_redundancy(manual_month)
+redund <- calculate_redundancy()
 
 # Sector payroll (hospitality, retail, health)
-sectors <- calculate_sector_payroll(manual_month)
+sectors <- calculate_sector_payroll()
 
 # HR1 redundancy notifications
 hr1 <- calculate_hr1()
 
 # Inactivity by reason
-inact_reasons <- calculate_inactivity_reasons(manual_month)
+inact_reasons <- calculate_inactivity_reasons()
 
 # ==============================================================================
-# ANCHOR DATE FOR LABELS
+# ANCHOR DATE FOR LABELS (derived from LFS data)
 # ==============================================================================
 
-cm <- parse_manual_month(manual_month)
-anchor_m <- cm %m-% months(2)
+anchor_m <- lfs$emp16$end
 
 # ==============================================================================
 # CONVENIENCE VARIABLES FOR DASHBOARD
@@ -235,3 +233,15 @@ payroll_month_label <- format(payroll$anchor, "%B %Y")
 payroll_flash_label <- format(payroll$flash_anchor, "%B %Y")
 sector_month_label <- format(sectors$hospitality$anchor, "%B %Y")
 hr1_month_label <- format(hr1$anchor, "%B %Y")
+
+# ==============================================================================
+# BRIEFING RELEASE DATE LABEL (for UI display)
+# ==============================================================================
+
+# The "release" label is based on the LFS period end date + 2 months
+# e.g., if LFS data is for Oct 2025 (Aug-Oct), the briefing is "December 2025"
+briefing_release_label <- if (!is.na(anchor_m)) {
+  format(anchor_m %m+% months(2), "%B %Y")
+} else {
+  format(Sys.Date(), "%B %Y")
+}
