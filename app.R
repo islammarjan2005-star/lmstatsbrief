@@ -1,7 +1,7 @@
 # ==============================================================================
 # Labour Market Briefing Dashboard - Shiny App
 # ==============================================================================
-# Premium UI with automatic date detection from database
+# GOV.UK Design System styled UI with automatic date detection
 # ==============================================================================
 
 suppressPackageStartupMessages({
@@ -20,476 +20,476 @@ suppressPackageStartupMessages({
 ui <- fluidPage(
   theme = shinytheme("flatly"),
 
-  # Premium CSS styling
+  # GOV.UK CSS styling
   tags$head(
     tags$style(HTML("
-      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap');
+
+      * {
+        box-sizing: border-box;
+      }
 
       body {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        min-height: 100vh;
+        font-family: 'Source Sans Pro', Arial, sans-serif;
+        font-size: 19px;
+        line-height: 1.5;
+        color: #0b0c0c;
+        background: #f3f2f1;
         margin: 0;
-        padding: 20px;
+        padding: 0;
       }
 
       .container-fluid {
-        max-width: 900px;
+        max-width: 960px;
         margin: 0 auto;
-      }
-
-      .main-card {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(20px);
-        border-radius: 24px;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
         padding: 0;
-        overflow: hidden;
       }
 
-      .main-header {
-        background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 50%, #1e3a5f 100%);
-        padding: 50px 40px;
-        text-align: center;
-        position: relative;
-        overflow: hidden;
+      /* GOV.UK Header */
+      .govuk-header {
+        background: #0b0c0c;
+        padding: 10px 0;
+        border-bottom: 10px solid #1d70b8;
       }
 
-      .main-header::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
-        animation: shimmer 15s infinite linear;
+      .govuk-header-content {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 10px 30px;
       }
 
-      @keyframes shimmer {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-
-      .main-header h1 {
-        font-size: 2.8em;
+      .govuk-header-logo {
+        font-size: 30px;
         font-weight: 700;
-        color: white;
-        margin: 0 0 12px 0;
-        letter-spacing: -0.5px;
-        position: relative;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        color: #ffffff;
       }
 
-      .main-header .release-label {
-        font-size: 1.1em;
-        color: rgba(255, 255, 255, 0.9);
-        font-weight: 400;
-        position: relative;
-        background: rgba(255,255,255,0.15);
-        padding: 8px 20px;
-        border-radius: 20px;
-        display: inline-block;
+      /* Phase Banner */
+      .govuk-phase-banner {
+        background: #ffffff;
+        border-bottom: 1px solid #b1b4b6;
+        padding: 10px 30px;
       }
 
-      .content-section {
-        padding: 40px;
-      }
-
-      .section-title {
-        font-size: 0.75em;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        color: #64748b;
-        margin-bottom: 20px;
-        text-align: center;
-      }
-
-      .btn-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 16px;
-        margin-bottom: 32px;
-      }
-
-      .btn-grid-3 {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 16px;
-        margin-bottom: 32px;
-      }
-
-      .btn-custom {
-        padding: 20px 24px;
-        font-size: 0.95em;
-        font-weight: 600;
-        border-radius: 16px;
-        border: none;
-        cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      .govuk-phase-banner-content {
+        max-width: 960px;
+        margin: 0 auto;
         display: flex;
         align-items: center;
-        justify-content: center;
+        gap: 15px;
+        font-size: 16px;
+      }
+
+      .govuk-phase-tag {
+        background: #1d70b8;
+        color: #ffffff;
+        padding: 4px 8px;
+        font-weight: 700;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      /* Main Content */
+      .govuk-main {
+        background: #ffffff;
+        padding: 40px 30px 60px 30px;
+        min-height: calc(100vh - 200px);
+      }
+
+      .govuk-main-inner {
+        max-width: 900px;
+      }
+
+      /* Typography */
+      .govuk-heading-xl {
+        font-size: 48px;
+        font-weight: 700;
+        line-height: 1.1;
+        margin: 0 0 30px 0;
+        color: #0b0c0c;
+      }
+
+      .govuk-heading-l {
+        font-size: 36px;
+        font-weight: 700;
+        line-height: 1.1;
+        margin: 50px 0 20px 0;
+        color: #0b0c0c;
+      }
+
+      .govuk-heading-m {
+        font-size: 24px;
+        font-weight: 700;
+        line-height: 1.2;
+        margin: 30px 0 15px 0;
+        color: #0b0c0c;
+      }
+
+      .govuk-body {
+        font-size: 19px;
+        margin: 0 0 20px 0;
+        color: #0b0c0c;
+      }
+
+      .govuk-body-s {
+        font-size: 16px;
+        color: #505a5f;
+      }
+
+      .govuk-caption-xl {
+        font-size: 27px;
+        font-weight: 400;
+        color: #505a5f;
+        margin-bottom: 5px;
+        display: block;
+      }
+
+      /* Buttons */
+      .govuk-button {
+        font-family: inherit;
+        font-size: 19px;
+        font-weight: 600;
+        line-height: 1;
+        padding: 12px 16px 10px;
+        border: none;
+        border-radius: 0;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
         gap: 10px;
         text-decoration: none;
-        width: 100%;
+        margin-right: 15px;
+        margin-bottom: 15px;
+        min-width: 200px;
+        justify-content: center;
       }
 
-      .btn-preview {
-        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-        color: #334155;
-        border: 2px solid #e2e8f0;
+      .govuk-button:focus {
+        outline: 3px solid #ffdd00;
+        outline-offset: 0;
+        background: #ffdd00;
+        box-shadow: 0 2px 0 #0b0c0c;
+        color: #0b0c0c;
       }
 
-      .btn-preview:hover {
-        background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
-        transform: translateY(-2px);
-        box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1);
-        color: #1e293b;
+      .govuk-button--primary {
+        background: #00703c;
+        color: #ffffff;
+        box-shadow: 0 2px 0 #002d18;
       }
 
-      .btn-generate {
-        background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
-        color: white;
-        border: none;
+      .govuk-button--primary:hover {
+        background: #005a30;
+        color: #ffffff;
       }
 
-      .btn-generate:hover {
-        background: linear-gradient(135deg, #2d5a87 0%, #3b7cb8 100%);
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px -5px rgba(30, 58, 95, 0.4);
-        color: white;
+      .govuk-button--secondary {
+        background: #f3f2f1;
+        color: #0b0c0c;
+        box-shadow: 0 2px 0 #505a5f;
       }
 
-      .btn-custom:active {
-        transform: translateY(0);
+      .govuk-button--secondary:hover {
+        background: #dbdad9;
+        color: #0b0c0c;
       }
 
-      .divider {
-        height: 1px;
-        background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
-        margin: 8px 0 32px 0;
+      /* Button Group */
+      .govuk-button-group {
+        margin: 30px 0;
+        display: flex;
+        flex-wrap: wrap;
       }
 
-      .status-message {
-        text-align: center;
-        padding: 16px 24px;
-        margin: 24px 40px;
-        border-radius: 12px;
-        font-weight: 500;
-        font-size: 0.9em;
+      /* Inset Text */
+      .govuk-inset-text {
+        border-left: 10px solid #b1b4b6;
+        padding: 15px 20px;
+        margin: 30px 0;
       }
 
-      .status-success {
-        background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
-        color: #065f46;
-        border: 1px solid #a7f3d0;
+      .govuk-inset-text--success {
+        border-color: #00703c;
+        background: #e6f4ed;
       }
 
-      .status-error {
-        background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-        color: #991b1b;
-        border: 1px solid #fecaca;
+      .govuk-inset-text--error {
+        border-color: #d4351c;
+        background: #fbeae5;
       }
 
-      .status-info {
-        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-        color: #1e40af;
-        border: 1px solid #bfdbfe;
+      .govuk-inset-text--info {
+        border-color: #1d70b8;
+        background: #e8f1f8;
       }
 
-      .preview-output {
-        margin: 24px 40px 40px 40px;
-        padding: 28px;
-        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-        border-radius: 16px;
-        border: 1px solid #e2e8f0;
+      /* Panel */
+      .govuk-panel {
+        background: #f3f2f1;
+        padding: 35px;
+        margin: 30px 0;
       }
 
-      .preview-output h4 {
-        color: #1e3a5f;
+      .govuk-panel__title {
+        font-size: 27px;
+        font-weight: 700;
         margin: 0 0 20px 0;
-        padding-bottom: 12px;
-        border-bottom: 2px solid #1e3a5f;
-        font-weight: 600;
-        font-size: 1.1em;
       }
 
-      .preview-output ol {
-        margin: 0;
-        padding-left: 24px;
-      }
-
-      .preview-output li {
-        padding: 8px 0;
-        color: #334155;
-        line-height: 1.6;
-      }
-
-      .preview-output table {
+      /* Tables */
+      .govuk-table {
         width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        font-size: 0.85em;
+        border-collapse: collapse;
+        margin: 30px 0;
+        font-size: 18px;
       }
 
-      .preview-output th {
-        background: #1e3a5f;
-        color: white;
-        padding: 12px 16px;
+      .govuk-table__header,
+      .govuk-table__cell {
+        padding: 15px 20px 15px 0;
+        border-bottom: 1px solid #b1b4b6;
         text-align: left;
+        vertical-align: top;
+      }
+
+      .govuk-table__header {
+        font-weight: 700;
+      }
+
+      .govuk-table__header--numeric,
+      .govuk-table__cell--numeric {
+        text-align: right;
+      }
+
+      .govuk-table__row:hover {
+        background: #f3f2f1;
+      }
+
+      .govuk-positive {
+        color: #00703c;
         font-weight: 600;
       }
 
-      .preview-output th:first-child {
-        border-radius: 8px 0 0 0;
+      .govuk-negative {
+        color: #d4351c;
+        font-weight: 600;
       }
 
-      .preview-output th:last-child {
-        border-radius: 0 8px 0 0;
-      }
-
-      .preview-output td {
-        padding: 10px 16px;
-        border-bottom: 1px solid #e2e8f0;
-        color: #334155;
-      }
-
-      .preview-output tr:last-child td:first-child {
-        border-radius: 0 0 0 8px;
-      }
-
-      .preview-output tr:last-child td:last-child {
-        border-radius: 0 0 8px 0;
-      }
-
-      .preview-output tr:hover td {
-        background: rgba(30, 58, 95, 0.05);
-      }
-
-      /* Word Document Preview Styles */
-      .word-preview {
-        margin: 24px 40px 40px 40px;
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-        overflow: hidden;
-      }
-
-      .word-page {
-        padding: 60px 70px;
-        font-family: 'Calibri', 'Segoe UI', sans-serif;
-        font-size: 11pt;
-        line-height: 1.5;
-        color: #333;
-        min-height: 600px;
-        background: white;
-        position: relative;
-      }
-
-      .word-page::before {
-        content: 'DOCUMENT PREVIEW';
-        position: absolute;
-        top: 15px;
-        right: 20px;
-        font-size: 9px;
-        color: #999;
-        letter-spacing: 1px;
-        font-family: 'Inter', sans-serif;
-      }
-
-      .word-title {
-        font-size: 24pt;
-        font-weight: bold;
-        color: #1e3a5f;
-        text-align: center;
-        margin-bottom: 8px;
-        border-bottom: 3px solid #1e3a5f;
-        padding-bottom: 15px;
-      }
-
-      .word-subtitle {
-        font-size: 14pt;
-        color: #666;
-        text-align: center;
-        margin-bottom: 30px;
-      }
-
-      .word-section-title {
-        font-size: 14pt;
-        font-weight: bold;
-        color: #1e3a5f;
-        margin: 25px 0 15px 0;
-        padding-bottom: 5px;
-        border-bottom: 1px solid #ddd;
-      }
-
-      .word-summary {
-        background: #f8f9fa;
-        padding: 20px;
-        border-left: 4px solid #1e3a5f;
+      /* Lists */
+      .govuk-list {
         margin: 20px 0;
-      }
-
-      .word-summary p {
-        margin: 8px 0;
-        font-size: 11pt;
-      }
-
-      .word-topten {
-        counter-reset: topten;
-        padding-left: 0;
+        padding: 0;
         list-style: none;
       }
 
-      .word-topten li {
-        counter-increment: topten;
-        padding: 10px 0 10px 45px;
-        position: relative;
-        border-bottom: 1px solid #eee;
+      .govuk-list--number {
+        counter-reset: item;
+        padding-left: 0;
       }
 
-      .word-topten li::before {
-        content: counter(topten);
+      .govuk-list--number > li {
+        counter-increment: item;
+        margin-bottom: 15px;
+        padding-left: 40px;
+        position: relative;
+      }
+
+      .govuk-list--number > li::before {
+        content: counter(item) '.';
         position: absolute;
         left: 0;
-        top: 8px;
-        width: 28px;
-        height: 28px;
-        background: #1e3a5f;
-        color: white;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        font-size: 12px;
+        font-weight: 700;
+        color: #0b0c0c;
       }
 
-      .word-table {
-        width: 100%;
-        border-collapse: collapse;
+      /* Section Break */
+      .govuk-section-break {
+        margin: 0;
+        border: 0;
+      }
+
+      .govuk-section-break--xl {
+        margin-top: 50px;
+        margin-bottom: 50px;
+      }
+
+      .govuk-section-break--visible {
+        border-bottom: 1px solid #b1b4b6;
+      }
+
+      /* Footer */
+      .govuk-footer {
+        background: #f3f2f1;
+        border-top: 1px solid #b1b4b6;
+        padding: 25px 30px;
+        font-size: 16px;
+        color: #505a5f;
+      }
+
+      .govuk-footer-content {
+        max-width: 960px;
+        margin: 0 auto;
+      }
+
+      /* Document Preview */
+      .govuk-document-preview {
+        background: #ffffff;
+        border: 1px solid #b1b4b6;
+        padding: 40px 50px;
+        margin: 30px 0;
+      }
+
+      .govuk-document-preview__header {
+        border-bottom: 4px solid #0b0c0c;
+        padding-bottom: 20px;
+        margin-bottom: 30px;
+      }
+
+      .govuk-document-preview__title {
+        font-size: 32px;
+        font-weight: 700;
+        margin: 0;
+      }
+
+      .govuk-document-preview__subtitle {
+        font-size: 19px;
+        color: #505a5f;
+        margin: 10px 0 0 0;
+      }
+
+      .govuk-document-preview__section {
+        margin: 35px 0;
+      }
+
+      .govuk-document-preview__section-title {
+        font-size: 24px;
+        font-weight: 700;
+        margin: 0 0 15px 0;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #b1b4b6;
+      }
+
+      .govuk-summary-box {
+        background: #f3f2f1;
+        padding: 20px 25px;
+        border-left: 5px solid #1d70b8;
         margin: 20px 0;
-        font-size: 10pt;
       }
 
-      .word-table th {
-        background: #1e3a5f;
-        color: white;
-        padding: 10px 12px;
-        text-align: center;
-        font-weight: 600;
-        border: 1px solid #1e3a5f;
+      .govuk-summary-box p {
+        margin: 10px 0;
+        font-size: 18px;
       }
 
-      .word-table th:first-child {
-        text-align: left;
-      }
-
-      .word-table td {
-        padding: 8px 12px;
-        border: 1px solid #ddd;
-        text-align: center;
-      }
-
-      .word-table td:first-child {
-        text-align: left;
-        font-weight: 500;
-      }
-
-      .word-table tr:nth-child(even) {
-        background: #f8f9fa;
-      }
-
-      .word-positive { color: #065f46; }
-      .word-negative { color: #991b1b; }
-
-      .word-footer {
+      .govuk-document-preview__footer {
         margin-top: 40px;
         padding-top: 20px;
-        border-top: 1px solid #ddd;
-        font-size: 9pt;
-        color: #666;
-        text-align: center;
+        border-top: 1px solid #b1b4b6;
+        font-size: 14px;
+        color: #505a5f;
       }
 
+      /* Shiny Overrides */
       .shiny-notification {
-        border-radius: 12px;
+        border-radius: 0;
         border: none;
-        box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.2);
+        border-left: 5px solid #1d70b8;
+        font-family: inherit;
       }
 
       .progress {
-        height: 8px;
-        border-radius: 4px;
-        background: #e2e8f0;
+        height: 10px;
+        border-radius: 0;
+        background: #b1b4b6;
       }
 
       .progress-bar {
-        background: linear-gradient(90deg, #1e3a5f, #2d5a87);
-        border-radius: 4px;
+        background: #00703c;
+        border-radius: 0;
       }
 
-      .footer-text {
-        text-align: center;
-        padding: 20px 40px 30px 40px;
-        color: #94a3b8;
-        font-size: 0.8em;
+      @media (max-width: 640px) {
+        .govuk-heading-xl { font-size: 32px; }
+        .govuk-heading-l { font-size: 27px; }
+        .govuk-heading-m { font-size: 21px; }
+        body { font-size: 16px; }
+        .govuk-button { width: 100%; margin-right: 0; }
       }
     "))
   ),
 
-  # Main card container
-  div(class = "main-card",
+  # GOV.UK Header
+  div(class = "govuk-header",
+    div(class = "govuk-header-content",
+      span(class = "govuk-header-logo", "Labour Market Statistics")
+    )
+  ),
 
-    # Header
-    div(class = "main-header",
-      h1("Labour Market Briefing"),
-      div(class = "release-label",
-        textOutput("release_label", inline = TRUE)
-      )
-    ),
+  # Phase Banner
+  div(class = "govuk-phase-banner",
+    div(class = "govuk-phase-banner-content",
+      span(class = "govuk-phase-tag", "LIVE"),
+      span(textOutput("release_label", inline = TRUE))
+    )
+  ),
 
-    # Content
-    div(class = "content-section",
+  # Main Content
+  div(class = "govuk-main",
+    div(class = "govuk-main-inner",
 
-      # Preview section
-      div(class = "section-title", "Preview"),
-      div(class = "btn-grid-3",
-        actionButton("preview_top10",
-                     tagList(icon("list-ol"), "Top 10"),
-                     class = "btn-custom btn-preview"),
-        actionButton("preview_dashboard",
-                     tagList(icon("table-columns"), "Dashboard"),
-                     class = "btn-custom btn-preview"),
-        actionButton("preview_word",
-                     tagList(icon("file-lines"), "Document"),
-                     class = "btn-custom btn-preview")
+      # Page Title
+      h1(class = "govuk-heading-xl",
+        span(class = "govuk-caption-xl", "Statistical Briefing"),
+        "Labour Market Statistics Briefing"
       ),
 
-      div(class = "divider"),
+      p(class = "govuk-body",
+        "Generate and preview labour market statistics briefings. Data is sourced from the latest ONS releases."
+      ),
 
-      # Generate section
-      div(class = "section-title", "Generate Reports"),
-      div(class = "btn-grid",
+      # Preview Section
+      h2(class = "govuk-heading-l", "Preview"),
+      p(class = "govuk-body-s", "Review the data before generating documents"),
+
+      div(class = "govuk-button-group",
+        actionButton("preview_top10",
+                     tagList(icon("list-ol"), " Top 10 Statistics"),
+                     class = "govuk-button govuk-button--secondary"),
+        actionButton("preview_dashboard",
+                     tagList(icon("table"), " Dashboard"),
+                     class = "govuk-button govuk-button--secondary"),
+        actionButton("preview_word",
+                     tagList(icon("file-lines"), " Document Preview"),
+                     class = "govuk-button govuk-button--secondary")
+      ),
+
+      hr(class = "govuk-section-break govuk-section-break--xl govuk-section-break--visible"),
+
+      # Generate Section
+      h2(class = "govuk-heading-l", "Generate Reports"),
+      p(class = "govuk-body-s", "Download final documents"),
+
+      div(class = "govuk-button-group",
         downloadButton("download_word",
-                       tagList(icon("file-word"), "Word Document"),
-                       class = "btn-custom btn-generate"),
+                       tagList(icon("file-word"), " Download Word Document"),
+                       class = "govuk-button govuk-button--primary"),
         downloadButton("download_excel",
-                       tagList(icon("file-excel"), "Excel Workbook"),
-                       class = "btn-custom btn-generate")
-      )
-    ),
+                       tagList(icon("file-excel"), " Download Excel Workbook"),
+                       class = "govuk-button govuk-button--primary")
+      ),
 
-    # Status message
-    uiOutput("status_message"),
+      # Status message
+      uiOutput("status_message"),
 
-    # Preview output area
-    uiOutput("preview_output"),
+      # Preview output area
+      uiOutput("preview_output")
+    )
+  ),
 
-    # Footer
-    div(class = "footer-text",
+  # Footer
+  div(class = "govuk-footer",
+    div(class = "govuk-footer-content",
       "Data sourced from ONS Labour Market Statistics"
     )
   )
@@ -531,12 +531,12 @@ server <- function(input, output, session) {
       source(calculations_path, local = env)
       cached_env(env)
       if (exists("briefing_release_label", envir = env)) {
-        paste("Latest briefing released", get("briefing_release_label", envir = env))
+        paste("Data release:", get("briefing_release_label", envir = env))
       } else {
-        paste("Latest briefing released", format(Sys.Date(), "%B %Y"))
+        paste("Data release:", format(Sys.Date(), "%B %Y"))
       }
     }, error = function(e) {
-      paste("Latest briefing released", format(Sys.Date(), "%B %Y"))
+      paste("Data release:", format(Sys.Date(), "%B %Y"))
     })
   })
 
@@ -544,8 +544,12 @@ server <- function(input, output, session) {
   output$status_message <- renderUI({
     s <- status()
     if (!is.null(s$message)) {
-      div(class = paste("status-message", paste0("status-", s$type)),
-          s$message)
+      css_class <- switch(s$type,
+        "success" = "govuk-inset-text govuk-inset-text--success",
+        "error" = "govuk-inset-text govuk-inset-text--error",
+        "govuk-inset-text govuk-inset-text--info"
+      )
+      div(class = css_class, s$message)
     }
   })
 
@@ -566,9 +570,9 @@ server <- function(input, output, session) {
 
         incProgress(0.9, detail = "Rendering preview...")
         output$preview_output <- renderUI({
-          div(class = "preview-output",
-            h4("Top 10 Statistics"),
-            tags$ol(
+          div(class = "govuk-panel",
+            h3(class = "govuk-panel__title", "Top 10 Statistics"),
+            tags$ol(class = "govuk-list govuk-list--number",
               lapply(1:10, function(i) {
                 line <- top10[[paste0("line", i)]]
                 if (!is.null(line) && nchar(line) > 0) {
@@ -599,14 +603,12 @@ server <- function(input, output, session) {
 
         incProgress(0.5, detail = "Processing metrics...")
 
-        # Helper to get value or NA
         gv <- function(name) {
           if (exists(name, envir = env)) get(name, envir = env) else NA_real_
         }
 
         incProgress(0.7, detail = "Building table...")
 
-        # Build dashboard table
         dashboard_data <- data.frame(
           Metric = c(
             "Employment (000s)",
@@ -636,7 +638,7 @@ server <- function(input, output, session) {
             round(gv("latest_wages"), 1),
             round(gv("latest_wages_cpi"), 1)
           ),
-          `QoQ` = c(
+          QoQ = c(
             round(gv("emp16_dq") / 1000, 0),
             round(gv("emp_rt_dq"), 2),
             round(gv("unemp16_dq") / 1000, 0),
@@ -650,7 +652,7 @@ server <- function(input, output, session) {
             round(gv("wages_change_q"), 0),
             round(gv("wages_cpi_change_q"), 0)
           ),
-          `YoY` = c(
+          YoY = c(
             round(gv("emp16_dy") / 1000, 0),
             round(gv("emp_rt_dy"), 2),
             round(gv("unemp16_dy") / 1000, 0),
@@ -664,8 +666,7 @@ server <- function(input, output, session) {
             round(gv("wages_change_y"), 0),
             round(gv("wages_cpi_change_y"), 0)
           ),
-          stringsAsFactors = FALSE,
-          check.names = FALSE
+          stringsAsFactors = FALSE
         )
 
         lfs_label <- if (exists("lfs_period_label", envir = env)) {
@@ -677,8 +678,8 @@ server <- function(input, output, session) {
         incProgress(0.9, detail = "Rendering preview...")
 
         output$preview_output <- renderUI({
-          div(class = "preview-output",
-            h4(paste("Dashboard Metrics", "-", lfs_label)),
+          div(class = "govuk-panel",
+            h3(class = "govuk-heading-m", paste("Dashboard Metrics -", lfs_label)),
             tableOutput("dashboard_table")
           )
         })
@@ -719,12 +720,10 @@ server <- function(input, output, session) {
 
         incProgress(0.8, detail = "Building document preview...")
 
-        # Helper to get value or NA
         gv <- function(name) {
           if (exists(name, envir = env)) get(name, envir = env) else NA_real_
         }
 
-        # Format helpers
         fmt_k <- function(x) {
           if (is.na(x)) return("-")
           format(round(x / 1000), big.mark = ",")
@@ -746,7 +745,7 @@ server <- function(input, output, session) {
           if (is.na(x) || x == 0) return("")
           positive <- x > 0
           if (invert) positive <- !positive
-          if (positive) "word-positive" else "word-negative"
+          if (positive) "govuk-positive" else "govuk-negative"
         }
 
         briefing_label <- if (exists("briefing_release_label", envir = env)) {
@@ -764,120 +763,103 @@ server <- function(input, output, session) {
         incProgress(0.9, detail = "Rendering preview...")
 
         output$preview_output <- renderUI({
-          div(class = "word-preview",
-            div(class = "word-page",
+          div(class = "govuk-document-preview",
 
-              # Title
-              div(class = "word-title", "Labour Market Statistics Briefing"),
-              div(class = "word-subtitle", briefing_label),
+            div(class = "govuk-document-preview__header",
+              h2(class = "govuk-document-preview__title", "Labour Market Statistics Briefing"),
+              p(class = "govuk-document-preview__subtitle", briefing_label)
+            ),
 
-              # Summary Section
-              div(class = "word-section-title", "Executive Summary"),
-              div(class = "word-summary",
+            div(class = "govuk-document-preview__section",
+              h3(class = "govuk-document-preview__section-title", "Executive Summary"),
+              div(class = "govuk-summary-box",
                 lapply(1:6, function(i) {
                   line <- summary[[paste0("line", i)]]
                   if (!is.null(line) && nchar(line) > 0) {
                     p(line)
                   }
                 })
-              ),
+              )
+            ),
 
-              # Top 10 Section
-              div(class = "word-section-title", "Top 10 Statistics"),
-              tags$ol(class = "word-topten",
+            div(class = "govuk-document-preview__section",
+              h3(class = "govuk-document-preview__section-title", "Top 10 Statistics"),
+              tags$ol(class = "govuk-list govuk-list--number",
                 lapply(1:10, function(i) {
                   line <- top10[[paste0("line", i)]]
                   if (!is.null(line) && nchar(line) > 0) {
                     tags$li(line)
                   }
                 })
-              ),
+              )
+            ),
 
-              # Dashboard Table
-              div(class = "word-section-title", paste("Key Metrics -", lfs_label)),
-              tags$table(class = "word-table",
+            div(class = "govuk-document-preview__section",
+              h3(class = "govuk-document-preview__section-title", paste("Key Metrics -", lfs_label)),
+              tags$table(class = "govuk-table",
                 tags$thead(
                   tags$tr(
-                    tags$th("Metric"),
-                    tags$th("Current"),
-                    tags$th("QoQ"),
-                    tags$th("YoY"),
-                    tags$th("vs COVID"),
-                    tags$th("vs Election")
+                    tags$th(class = "govuk-table__header", "Metric"),
+                    tags$th(class = "govuk-table__header govuk-table__header--numeric", "Current"),
+                    tags$th(class = "govuk-table__header govuk-table__header--numeric", "QoQ"),
+                    tags$th(class = "govuk-table__header govuk-table__header--numeric", "YoY")
                   )
                 ),
                 tags$tbody(
-                  tags$tr(
-                    tags$td("Employment (000s)"),
-                    tags$td(fmt_k(gv("emp16_cur"))),
-                    tags$td(class = color_class(gv("emp16_dq")), fmt_chg(gv("emp16_dq"))),
-                    tags$td(class = color_class(gv("emp16_dy")), fmt_chg(gv("emp16_dy"))),
-                    tags$td(class = color_class(gv("emp16_dc")), fmt_chg(gv("emp16_dc"))),
-                    tags$td(class = color_class(gv("emp16_de")), fmt_chg(gv("emp16_de")))
+                  tags$tr(class = "govuk-table__row",
+                    tags$td(class = "govuk-table__cell", "Employment (000s)"),
+                    tags$td(class = "govuk-table__cell govuk-table__cell--numeric", fmt_k(gv("emp16_cur"))),
+                    tags$td(class = paste("govuk-table__cell govuk-table__cell--numeric", color_class(gv("emp16_dq"))), fmt_chg(gv("emp16_dq"))),
+                    tags$td(class = paste("govuk-table__cell govuk-table__cell--numeric", color_class(gv("emp16_dy"))), fmt_chg(gv("emp16_dy")))
                   ),
-                  tags$tr(
-                    tags$td("Employment Rate"),
-                    tags$td(fmt_pct(gv("emp_rt_cur"))),
-                    tags$td(class = color_class(gv("emp_rt_dq")), fmt_chg(gv("emp_rt_dq"), TRUE)),
-                    tags$td(class = color_class(gv("emp_rt_dy")), fmt_chg(gv("emp_rt_dy"), TRUE)),
-                    tags$td(class = color_class(gv("emp_rt_dc")), fmt_chg(gv("emp_rt_dc"), TRUE)),
-                    tags$td(class = color_class(gv("emp_rt_de")), fmt_chg(gv("emp_rt_de"), TRUE))
+                  tags$tr(class = "govuk-table__row",
+                    tags$td(class = "govuk-table__cell", "Employment Rate"),
+                    tags$td(class = "govuk-table__cell govuk-table__cell--numeric", fmt_pct(gv("emp_rt_cur"))),
+                    tags$td(class = paste("govuk-table__cell govuk-table__cell--numeric", color_class(gv("emp_rt_dq"))), fmt_chg(gv("emp_rt_dq"), TRUE)),
+                    tags$td(class = paste("govuk-table__cell govuk-table__cell--numeric", color_class(gv("emp_rt_dy"))), fmt_chg(gv("emp_rt_dy"), TRUE))
                   ),
-                  tags$tr(
-                    tags$td("Unemployment (000s)"),
-                    tags$td(fmt_k(gv("unemp16_cur"))),
-                    tags$td(class = color_class(gv("unemp16_dq"), TRUE), fmt_chg(gv("unemp16_dq"))),
-                    tags$td(class = color_class(gv("unemp16_dy"), TRUE), fmt_chg(gv("unemp16_dy"))),
-                    tags$td(class = color_class(gv("unemp16_dc"), TRUE), fmt_chg(gv("unemp16_dc"))),
-                    tags$td(class = color_class(gv("unemp16_de"), TRUE), fmt_chg(gv("unemp16_de")))
+                  tags$tr(class = "govuk-table__row",
+                    tags$td(class = "govuk-table__cell", "Unemployment (000s)"),
+                    tags$td(class = "govuk-table__cell govuk-table__cell--numeric", fmt_k(gv("unemp16_cur"))),
+                    tags$td(class = paste("govuk-table__cell govuk-table__cell--numeric", color_class(gv("unemp16_dq"), TRUE)), fmt_chg(gv("unemp16_dq"))),
+                    tags$td(class = paste("govuk-table__cell govuk-table__cell--numeric", color_class(gv("unemp16_dy"), TRUE)), fmt_chg(gv("unemp16_dy")))
                   ),
-                  tags$tr(
-                    tags$td("Unemployment Rate"),
-                    tags$td(fmt_pct(gv("unemp_rt_cur"))),
-                    tags$td(class = color_class(gv("unemp_rt_dq"), TRUE), fmt_chg(gv("unemp_rt_dq"), TRUE)),
-                    tags$td(class = color_class(gv("unemp_rt_dy"), TRUE), fmt_chg(gv("unemp_rt_dy"), TRUE)),
-                    tags$td(class = color_class(gv("unemp_rt_dc"), TRUE), fmt_chg(gv("unemp_rt_dc"), TRUE)),
-                    tags$td(class = color_class(gv("unemp_rt_de"), TRUE), fmt_chg(gv("unemp_rt_de"), TRUE))
+                  tags$tr(class = "govuk-table__row",
+                    tags$td(class = "govuk-table__cell", "Unemployment Rate"),
+                    tags$td(class = "govuk-table__cell govuk-table__cell--numeric", fmt_pct(gv("unemp_rt_cur"))),
+                    tags$td(class = paste("govuk-table__cell govuk-table__cell--numeric", color_class(gv("unemp_rt_dq"), TRUE)), fmt_chg(gv("unemp_rt_dq"), TRUE)),
+                    tags$td(class = paste("govuk-table__cell govuk-table__cell--numeric", color_class(gv("unemp_rt_dy"), TRUE)), fmt_chg(gv("unemp_rt_dy"), TRUE))
                   ),
-                  tags$tr(
-                    tags$td("Inactivity (000s)"),
-                    tags$td(fmt_k(gv("inact_cur"))),
-                    tags$td(class = color_class(gv("inact_dq"), TRUE), fmt_chg(gv("inact_dq"))),
-                    tags$td(class = color_class(gv("inact_dy"), TRUE), fmt_chg(gv("inact_dy"))),
-                    tags$td(class = color_class(gv("inact_dc"), TRUE), fmt_chg(gv("inact_dc"))),
-                    tags$td(class = color_class(gv("inact_de"), TRUE), fmt_chg(gv("inact_de")))
+                  tags$tr(class = "govuk-table__row",
+                    tags$td(class = "govuk-table__cell", "Inactivity (000s)"),
+                    tags$td(class = "govuk-table__cell govuk-table__cell--numeric", fmt_k(gv("inact_cur"))),
+                    tags$td(class = paste("govuk-table__cell govuk-table__cell--numeric", color_class(gv("inact_dq"), TRUE)), fmt_chg(gv("inact_dq"))),
+                    tags$td(class = paste("govuk-table__cell govuk-table__cell--numeric", color_class(gv("inact_dy"), TRUE)), fmt_chg(gv("inact_dy")))
                   ),
-                  tags$tr(
-                    tags$td("Inactivity Rate"),
-                    tags$td(fmt_pct(gv("inact_rt_cur"))),
-                    tags$td(class = color_class(gv("inact_rt_dq"), TRUE), fmt_chg(gv("inact_rt_dq"), TRUE)),
-                    tags$td(class = color_class(gv("inact_rt_dy"), TRUE), fmt_chg(gv("inact_rt_dy"), TRUE)),
-                    tags$td(class = color_class(gv("inact_rt_dc"), TRUE), fmt_chg(gv("inact_rt_dc"), TRUE)),
-                    tags$td(class = color_class(gv("inact_rt_de"), TRUE), fmt_chg(gv("inact_rt_de"), TRUE))
+                  tags$tr(class = "govuk-table__row",
+                    tags$td(class = "govuk-table__cell", "Inactivity Rate"),
+                    tags$td(class = "govuk-table__cell govuk-table__cell--numeric", fmt_pct(gv("inact_rt_cur"))),
+                    tags$td(class = paste("govuk-table__cell govuk-table__cell--numeric", color_class(gv("inact_rt_dq"), TRUE)), fmt_chg(gv("inact_rt_dq"), TRUE)),
+                    tags$td(class = paste("govuk-table__cell govuk-table__cell--numeric", color_class(gv("inact_rt_dy"), TRUE)), fmt_chg(gv("inact_rt_dy"), TRUE))
                   ),
-                  tags$tr(
-                    tags$td("Vacancies (000s)"),
-                    tags$td(format(round(gv("vac_cur")), big.mark = ",")),
-                    tags$td(format(round(gv("vac_dq")), big.mark = ",")),
-                    tags$td(format(round(gv("vac_dy")), big.mark = ",")),
-                    tags$td(format(round(gv("vac_dc")), big.mark = ",")),
-                    tags$td(format(round(gv("vac_de")), big.mark = ","))
+                  tags$tr(class = "govuk-table__row",
+                    tags$td(class = "govuk-table__cell", "Vacancies (000s)"),
+                    tags$td(class = "govuk-table__cell govuk-table__cell--numeric", format(round(gv("vac_cur")), big.mark = ",")),
+                    tags$td(class = "govuk-table__cell govuk-table__cell--numeric", format(round(gv("vac_dq")), big.mark = ",")),
+                    tags$td(class = "govuk-table__cell govuk-table__cell--numeric", format(round(gv("vac_dy")), big.mark = ","))
                   ),
-                  tags$tr(
-                    tags$td("Payroll (000s)"),
-                    tags$td(format(round(gv("payroll_cur")), big.mark = ",")),
-                    tags$td(class = color_class(gv("payroll_dq")), paste0(if(gv("payroll_dq") > 0) "+" else "", round(gv("payroll_dq")))),
-                    tags$td(class = color_class(gv("payroll_dy")), paste0(if(gv("payroll_dy") > 0) "+" else "", round(gv("payroll_dy")))),
-                    tags$td(class = color_class(gv("payroll_dc")), paste0(if(gv("payroll_dc") > 0) "+" else "", round(gv("payroll_dc")))),
-                    tags$td(class = color_class(gv("payroll_de")), paste0(if(gv("payroll_de") > 0) "+" else "", round(gv("payroll_de"))))
+                  tags$tr(class = "govuk-table__row",
+                    tags$td(class = "govuk-table__cell", "Payroll (000s)"),
+                    tags$td(class = "govuk-table__cell govuk-table__cell--numeric", format(round(gv("payroll_cur")), big.mark = ",")),
+                    tags$td(class = paste("govuk-table__cell govuk-table__cell--numeric", color_class(gv("payroll_dq"))), paste0(if(gv("payroll_dq") > 0) "+" else "", round(gv("payroll_dq")))),
+                    tags$td(class = paste("govuk-table__cell govuk-table__cell--numeric", color_class(gv("payroll_dy"))), paste0(if(gv("payroll_dy") > 0) "+" else "", round(gv("payroll_dy"))))
                   )
                 )
-              ),
-
-              # Footer
-              div(class = "word-footer",
-                paste("Generated:", format(Sys.Date(), "%d %B %Y"), "| Source: ONS Labour Market Statistics")
               )
+            ),
+
+            div(class = "govuk-document-preview__footer",
+              paste("Generated:", format(Sys.Date(), "%d %B %Y"), "| Source: ONS Labour Market Statistics")
             )
           )
         })
@@ -930,7 +912,6 @@ server <- function(input, output, session) {
   output$download_excel <- downloadHandler(
     filename = function() {
       label <- get_briefing_label()
-      # Parse to get "Month YY" format
       parsed <- tryCatch({
         d <- as.Date(paste0("01 ", label), format = "%d %B %Y")
         format(d, "%B %y")
