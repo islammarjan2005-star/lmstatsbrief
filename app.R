@@ -1,7 +1,7 @@
 # ==============================================================================
 # Labour Market Briefing Dashboard - Shiny App
 # ==============================================================================
-# Clean, redesigned UI with automatic date detection from database
+# Premium UI with automatic date detection from database
 # ==============================================================================
 
 suppressPackageStartupMessages({
@@ -20,131 +20,323 @@ suppressPackageStartupMessages({
 ui <- fluidPage(
   theme = shinytheme("flatly"),
 
-  # Custom CSS for cleaner look
-  tags$head(
+  # Premium CSS styling
+ tags$head(
     tags$style(HTML("
-      .main-header {
-        text-align: center;
-        padding: 40px 20px 20px 20px;
-        background: linear-gradient(135deg, #0c275c 0%, #1a4a8c 100%);
-        color: white;
-        margin: -15px -15px 30px -15px;
-        border-radius: 0 0 10px 10px;
-      }
-      .main-header h1 {
-        font-size: 2.5em;
-        font-weight: bold;
-        margin-bottom: 10px;
-      }
-      .main-header .release-label {
-        font-size: 1.2em;
-        opacity: 0.9;
-        font-style: italic;
-      }
-      .btn-block-custom {
-        width: 100%;
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+      body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        margin: 0;
         padding: 20px;
-        font-size: 1.1em;
-        margin-bottom: 15px;
-        border-radius: 8px;
       }
-      .btn-preview {
-        background-color: #3498db;
-        border-color: #2980b9;
-        color: white;
-      }
-      .btn-preview:hover {
-        background-color: #2980b9;
-        border-color: #1f6aa5;
-        color: white;
-      }
-      .btn-generate {
-        background-color: #27ae60;
-        border-color: #1e8449;
-        color: white;
-      }
-      .btn-generate:hover {
-        background-color: #1e8449;
-        border-color: #196f3d;
-        color: white;
-      }
-      .button-section {
-        max-width: 500px;
+
+      .container-fluid {
+        max-width: 800px;
         margin: 0 auto;
-        padding: 20px;
       }
-      .preview-output {
-        margin-top: 30px;
-        padding: 20px;
-        background-color: #f8f9fa;
-        border-radius: 10px;
-        border: 1px solid #dee2e6;
+
+      .main-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 24px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        padding: 0;
+        overflow: hidden;
       }
-      .preview-output h4 {
-        color: #0c275c;
-        margin-bottom: 15px;
-        border-bottom: 2px solid #0c275c;
-        padding-bottom: 10px;
+
+      .main-header {
+        background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 50%, #1e3a5f 100%);
+        padding: 50px 40px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
       }
+
+      .main-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+        animation: shimmer 15s infinite linear;
+      }
+
+      @keyframes shimmer {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+
+      .main-header h1 {
+        font-size: 2.8em;
+        font-weight: 700;
+        color: white;
+        margin: 0 0 12px 0;
+        letter-spacing: -0.5px;
+        position: relative;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      }
+
+      .main-header .release-label {
+        font-size: 1.1em;
+        color: rgba(255, 255, 255, 0.9);
+        font-weight: 400;
+        position: relative;
+        background: rgba(255,255,255,0.15);
+        padding: 8px 20px;
+        border-radius: 20px;
+        display: inline-block;
+      }
+
+      .content-section {
+        padding: 40px;
+      }
+
+      .section-title {
+        font-size: 0.75em;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: #64748b;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .btn-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 32px;
+      }
+
+      .btn-custom {
+        padding: 20px 24px;
+        font-size: 0.95em;
+        font-weight: 600;
+        border-radius: 16px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        text-decoration: none;
+        width: 100%;
+      }
+
+      .btn-preview {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        color: #334155;
+        border: 2px solid #e2e8f0;
+      }
+
+      .btn-preview:hover {
+        background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1);
+        color: #1e293b;
+      }
+
+      .btn-generate {
+        background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
+        color: white;
+        border: none;
+      }
+
+      .btn-generate:hover {
+        background: linear-gradient(135deg, #2d5a87 0%, #3b7cb8 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px -5px rgba(30, 58, 95, 0.4);
+        color: white;
+      }
+
+      .btn-custom:active {
+        transform: translateY(0);
+      }
+
+      .divider {
+        height: 1px;
+        background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
+        margin: 8px 0 32px 0;
+      }
+
       .status-message {
         text-align: center;
-        padding: 15px;
-        margin-top: 20px;
-        border-radius: 8px;
-        max-width: 500px;
-        margin-left: auto;
-        margin-right: auto;
+        padding: 16px 24px;
+        margin: 24px 40px;
+        border-radius: 12px;
+        font-weight: 500;
+        font-size: 0.9em;
       }
+
       .status-success {
-        background-color: #d4edda;
-        color: #155724;
-        border: 1px solid #c3e6cb;
+        background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+        color: #065f46;
+        border: 1px solid #a7f3d0;
       }
+
       .status-error {
-        background-color: #f8d7da;
-        color: #721c24;
-        border: 1px solid #f5c6cb;
+        background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+        color: #991b1b;
+        border: 1px solid #fecaca;
       }
+
       .status-info {
-        background-color: #cce5ff;
-        color: #004085;
-        border: 1px solid #b8daff;
+        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+        color: #1e40af;
+        border: 1px solid #bfdbfe;
+      }
+
+      .preview-output {
+        margin: 24px 40px 40px 40px;
+        padding: 28px;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+      }
+
+      .preview-output h4 {
+        color: #1e3a5f;
+        margin: 0 0 20px 0;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #1e3a5f;
+        font-weight: 600;
+        font-size: 1.1em;
+      }
+
+      .preview-output ol {
+        margin: 0;
+        padding-left: 24px;
+      }
+
+      .preview-output li {
+        padding: 8px 0;
+        color: #334155;
+        line-height: 1.6;
+      }
+
+      .preview-output table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: 0.85em;
+      }
+
+      .preview-output th {
+        background: #1e3a5f;
+        color: white;
+        padding: 12px 16px;
+        text-align: left;
+        font-weight: 600;
+      }
+
+      .preview-output th:first-child {
+        border-radius: 8px 0 0 0;
+      }
+
+      .preview-output th:last-child {
+        border-radius: 0 8px 0 0;
+      }
+
+      .preview-output td {
+        padding: 10px 16px;
+        border-bottom: 1px solid #e2e8f0;
+        color: #334155;
+      }
+
+      .preview-output tr:last-child td:first-child {
+        border-radius: 0 0 0 8px;
+      }
+
+      .preview-output tr:last-child td:last-child {
+        border-radius: 0 0 8px 0;
+      }
+
+      .preview-output tr:hover td {
+        background: rgba(30, 58, 95, 0.05);
+      }
+
+      .shiny-notification {
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.2);
+      }
+
+      .progress {
+        height: 8px;
+        border-radius: 4px;
+        background: #e2e8f0;
+      }
+
+      .progress-bar {
+        background: linear-gradient(90deg, #1e3a5f, #2d5a87);
+        border-radius: 4px;
+      }
+
+      .footer-text {
+        text-align: center;
+        padding: 20px 40px 30px 40px;
+        color: #94a3b8;
+        font-size: 0.8em;
       }
     "))
   ),
 
-  # Main header
-  div(class = "main-header",
-    h1("Labour Market Briefing"),
-    div(class = "release-label",
-      textOutput("release_label", inline = TRUE)
+  # Main card container
+  div(class = "main-card",
+
+    # Header
+    div(class = "main-header",
+      h1("Labour Market Briefing"),
+      div(class = "release-label",
+        textOutput("release_label", inline = TRUE)
+      )
+    ),
+
+    # Content
+    div(class = "content-section",
+
+      # Preview section
+      div(class = "section-title", "Preview"),
+      div(class = "btn-grid",
+        actionButton("preview_top10",
+                     tagList(icon("list-ol"), "Top 10 Statistics"),
+                     class = "btn-custom btn-preview"),
+        actionButton("preview_dashboard",
+                     tagList(icon("table-columns"), "Dashboard Metrics"),
+                     class = "btn-custom btn-preview")
+      ),
+
+      div(class = "divider"),
+
+      # Generate section
+      div(class = "section-title", "Generate Reports"),
+      div(class = "btn-grid",
+        downloadButton("download_word",
+                       tagList(icon("file-word"), "Word Document"),
+                       class = "btn-custom btn-generate"),
+        downloadButton("download_excel",
+                       tagList(icon("file-excel"), "Excel Workbook"),
+                       class = "btn-custom btn-generate")
+      )
+    ),
+
+    # Status message
+    uiOutput("status_message"),
+
+    # Preview output area
+    uiOutput("preview_output"),
+
+    # Footer
+    div(class = "footer-text",
+      "Data sourced from ONS Labour Market Statistics"
     )
-  ),
-
-  # Button section
-  div(class = "button-section",
-    h4("Preview", style = "text-align: center; color: #2c3e50; margin-bottom: 20px;"),
-    actionButton("preview_top10", "Preview Top 10",
-                 class = "btn btn-preview btn-block-custom",
-                 icon = icon("list-ol")),
-    actionButton("preview_dashboard", "Preview Dashboard",
-                 class = "btn btn-preview btn-block-custom",
-                 icon = icon("chart-bar")),
-
-    hr(style = "margin: 30px 0;"),
-
-    h4("Generate", style = "text-align: center; color: #2c3e50; margin-bottom: 20px;"),
-    downloadButton("download_word", "Generate Word Document",
-                   class = "btn btn-generate btn-block-custom"),
-    downloadButton("download_excel", "Generate Excel Workbook",
-                   class = "btn btn-generate btn-block-custom")
-  ),
-
-  # Status message
-  uiOutput("status_message"),
-
-  # Preview output area
-  uiOutput("preview_output")
+  )
 )
 
 # ==============================================================================
@@ -163,13 +355,25 @@ server <- function(input, output, session) {
   template_path     <- "utils/DB.docx"
 
   # Reactive values
-  status <- reactiveVal(list(type = "info", message = "Ready. Click a button to begin."))
+  status <- reactiveVal(list(type = "info", message = "Ready to generate reports"))
+  cached_env <- reactiveVal(NULL)
+
+  # Get briefing label for filenames
+  get_briefing_label <- reactive({
+    env <- cached_env()
+    if (!is.null(env) && exists("briefing_release_label", envir = env)) {
+      get("briefing_release_label", envir = env)
+    } else {
+      format(Sys.Date(), "%B %Y")
+    }
+  })
 
   # Get the release label dynamically on startup
   output$release_label <- renderText({
     tryCatch({
       env <- new.env()
       source(calculations_path, local = env)
+      cached_env(env)
       if (exists("briefing_release_label", envir = env)) {
         paste("Latest briefing released", get("briefing_release_label", envir = env))
       } else {
@@ -191,139 +395,156 @@ server <- function(input, output, session) {
 
   # Preview Top 10
   observeEvent(input$preview_top10, {
-    status(list(type = "info", message = "Generating Top 10 preview..."))
+    withProgress(message = "Loading Top 10 Statistics", value = 0, {
+      tryCatch({
+        incProgress(0.2, detail = "Loading calculations...")
+        env <- new.env()
+        source(calculations_path, local = env)
+        cached_env(env)
 
-    tryCatch({
-      env <- new.env()
-      source(calculations_path, local = env)
-      source(top_ten_path, local = env)
+        incProgress(0.5, detail = "Loading top ten generator...")
+        source(top_ten_path, local = env)
 
-      top10 <- env$generate_top_ten()
+        incProgress(0.7, detail = "Generating statistics...")
+        top10 <- env$generate_top_ten()
 
-      output$preview_output <- renderUI({
-        div(class = "preview-output",
-          h4("Top 10 Statistics"),
-          tags$ol(
-            lapply(1:10, function(i) {
-              line <- top10[[paste0("line", i)]]
-              if (!is.null(line) && nchar(line) > 0) {
-                tags$li(line)
-              }
-            })
+        incProgress(0.9, detail = "Rendering preview...")
+        output$preview_output <- renderUI({
+          div(class = "preview-output",
+            h4("Top 10 Statistics"),
+            tags$ol(
+              lapply(1:10, function(i) {
+                line <- top10[[paste0("line", i)]]
+                if (!is.null(line) && nchar(line) > 0) {
+                  tags$li(line)
+                }
+              })
+            )
           )
-        )
-      })
+        })
 
-      status(list(type = "success", message = "Top 10 preview generated successfully."))
-    }, error = function(e) {
-      status(list(type = "error", message = paste("Error generating Top 10:", e$message)))
-      output$preview_output <- renderUI(NULL)
+        incProgress(1.0, detail = "Complete!")
+        status(list(type = "success", message = "Top 10 preview generated successfully"))
+      }, error = function(e) {
+        status(list(type = "error", message = paste("Error:", e$message)))
+        output$preview_output <- renderUI(NULL)
+      })
     })
   })
 
   # Preview Dashboard
   observeEvent(input$preview_dashboard, {
-    status(list(type = "info", message = "Generating Dashboard preview..."))
+    withProgress(message = "Loading Dashboard Metrics", value = 0, {
+      tryCatch({
+        incProgress(0.2, detail = "Loading calculations...")
+        env <- new.env()
+        source(calculations_path, local = env)
+        cached_env(env)
 
-    tryCatch({
-      env <- new.env()
-      source(calculations_path, local = env)
+        incProgress(0.5, detail = "Processing metrics...")
 
-      # Helper to get value or NA
-      gv <- function(name) {
-        if (exists(name, envir = env)) get(name, envir = env) else NA_real_
-      }
+        # Helper to get value or NA
+        gv <- function(name) {
+          if (exists(name, envir = env)) get(name, envir = env) else NA_real_
+        }
 
-      # Build dashboard table
-      dashboard_data <- data.frame(
-        Metric = c(
-          "Employment (000s)",
-          "Employment Rate (%)",
-          "Unemployment (000s)",
-          "Unemployment Rate (%)",
-          "Inactivity (000s)",
-          "Inactivity 50-64 (000s)",
-          "Inactivity Rate (%)",
-          "Inactivity Rate 50-64 (%)",
-          "Vacancies (000s)",
-          "Payroll (000s)",
-          "Wages Nominal (%)",
-          "Wages CPI (%)"
-        ),
-        Current = c(
-          round(gv("emp16_cur") / 1000, 0),
-          round(gv("emp_rt_cur"), 1),
-          round(gv("unemp16_cur") / 1000, 0),
-          round(gv("unemp_rt_cur"), 1),
-          round(gv("inact_cur") / 1000, 0),
-          round(gv("inact5064_cur") / 1000, 0),
-          round(gv("inact_rt_cur"), 1),
-          round(gv("inact5064_rt_cur"), 1),
-          round(gv("vac_cur"), 0),
-          round(gv("payroll_cur"), 0),
-          round(gv("latest_wages"), 1),
-          round(gv("latest_wages_cpi"), 1)
-        ),
-        `Change QoQ` = c(
-          round(gv("emp16_dq") / 1000, 0),
-          round(gv("emp_rt_dq"), 2),
-          round(gv("unemp16_dq") / 1000, 0),
-          round(gv("unemp_rt_dq"), 2),
-          round(gv("inact_dq") / 1000, 0),
-          round(gv("inact5064_dq") / 1000, 0),
-          round(gv("inact_rt_dq"), 2),
-          round(gv("inact5064_rt_dq"), 2),
-          round(gv("vac_dq"), 0),
-          round(gv("payroll_dq"), 0),
-          round(gv("wages_change_q"), 0),
-          round(gv("wages_cpi_change_q"), 0)
-        ),
-        `Change YoY` = c(
-          round(gv("emp16_dy") / 1000, 0),
-          round(gv("emp_rt_dy"), 2),
-          round(gv("unemp16_dy") / 1000, 0),
-          round(gv("unemp_rt_dy"), 2),
-          round(gv("inact_dy") / 1000, 0),
-          round(gv("inact5064_dy") / 1000, 0),
-          round(gv("inact_rt_dy"), 2),
-          round(gv("inact5064_rt_dy"), 2),
-          round(gv("vac_dy"), 0),
-          round(gv("payroll_dy"), 0),
-          round(gv("wages_change_y"), 0),
-          round(gv("wages_cpi_change_y"), 0)
-        ),
-        stringsAsFactors = FALSE,
-        check.names = FALSE
-      )
+        incProgress(0.7, detail = "Building table...")
 
-      lfs_label <- if (exists("lfs_period_label", envir = env)) {
-        get("lfs_period_label", envir = env)
-      } else {
-        ""
-      }
-
-      output$preview_output <- renderUI({
-        div(class = "preview-output",
-          h4(paste("Dashboard Preview -", lfs_label)),
-          tableOutput("dashboard_table")
+        # Build dashboard table
+        dashboard_data <- data.frame(
+          Metric = c(
+            "Employment (000s)",
+            "Employment Rate (%)",
+            "Unemployment (000s)",
+            "Unemployment Rate (%)",
+            "Inactivity (000s)",
+            "Inactivity 50-64 (000s)",
+            "Inactivity Rate (%)",
+            "Inactivity Rate 50-64 (%)",
+            "Vacancies (000s)",
+            "Payroll (000s)",
+            "Wages Nominal (%)",
+            "Wages CPI (%)"
+          ),
+          Current = c(
+            round(gv("emp16_cur") / 1000, 0),
+            round(gv("emp_rt_cur"), 1),
+            round(gv("unemp16_cur") / 1000, 0),
+            round(gv("unemp_rt_cur"), 1),
+            round(gv("inact_cur") / 1000, 0),
+            round(gv("inact5064_cur") / 1000, 0),
+            round(gv("inact_rt_cur"), 1),
+            round(gv("inact5064_rt_cur"), 1),
+            round(gv("vac_cur"), 0),
+            round(gv("payroll_cur"), 0),
+            round(gv("latest_wages"), 1),
+            round(gv("latest_wages_cpi"), 1)
+          ),
+          `QoQ` = c(
+            round(gv("emp16_dq") / 1000, 0),
+            round(gv("emp_rt_dq"), 2),
+            round(gv("unemp16_dq") / 1000, 0),
+            round(gv("unemp_rt_dq"), 2),
+            round(gv("inact_dq") / 1000, 0),
+            round(gv("inact5064_dq") / 1000, 0),
+            round(gv("inact_rt_dq"), 2),
+            round(gv("inact5064_rt_dq"), 2),
+            round(gv("vac_dq"), 0),
+            round(gv("payroll_dq"), 0),
+            round(gv("wages_change_q"), 0),
+            round(gv("wages_cpi_change_q"), 0)
+          ),
+          `YoY` = c(
+            round(gv("emp16_dy") / 1000, 0),
+            round(gv("emp_rt_dy"), 2),
+            round(gv("unemp16_dy") / 1000, 0),
+            round(gv("unemp_rt_dy"), 2),
+            round(gv("inact_dy") / 1000, 0),
+            round(gv("inact5064_dy") / 1000, 0),
+            round(gv("inact_rt_dy"), 2),
+            round(gv("inact5064_rt_dy"), 2),
+            round(gv("vac_dy"), 0),
+            round(gv("payroll_dy"), 0),
+            round(gv("wages_change_y"), 0),
+            round(gv("wages_cpi_change_y"), 0)
+          ),
+          stringsAsFactors = FALSE,
+          check.names = FALSE
         )
+
+        lfs_label <- if (exists("lfs_period_label", envir = env)) {
+          get("lfs_period_label", envir = env)
+        } else {
+          ""
+        }
+
+        incProgress(0.9, detail = "Rendering preview...")
+
+        output$preview_output <- renderUI({
+          div(class = "preview-output",
+            h4(paste("Dashboard Metrics", "-", lfs_label)),
+            tableOutput("dashboard_table")
+          )
+        })
+
+        output$dashboard_table <- renderTable({
+          dashboard_data
+        }, striped = TRUE, hover = TRUE, bordered = TRUE)
+
+        incProgress(1.0, detail = "Complete!")
+        status(list(type = "success", message = "Dashboard preview generated successfully"))
+      }, error = function(e) {
+        status(list(type = "error", message = paste("Error:", e$message)))
+        output$preview_output <- renderUI(NULL)
       })
-
-      output$dashboard_table <- renderTable({
-        dashboard_data
-      }, striped = TRUE, hover = TRUE, bordered = TRUE)
-
-      status(list(type = "success", message = "Dashboard preview generated successfully."))
-    }, error = function(e) {
-      status(list(type = "error", message = paste("Error generating Dashboard:", e$message)))
-      output$preview_output <- renderUI(NULL)
     })
   })
 
   # Download Word Document
   output$download_word <- downloadHandler(
     filename = function() {
-      paste0("Labour_Market_Briefing_", format(Sys.Date(), "%Y%m%d"), ".docx")
+      label <- get_briefing_label()
+      paste0("Labour Market Stats Briefing - ", label, ".docx")
     },
     content = function(file) {
       withProgress(message = "Generating Word Document", value = 0, {
@@ -347,7 +568,7 @@ server <- function(input, output, session) {
           incProgress(1.0, detail = "Complete!")
           status(list(type = "success", message = "Word document generated successfully!"))
         }, error = function(e) {
-          status(list(type = "error", message = paste("Error generating Word:", e$message)))
+          status(list(type = "error", message = paste("Error:", e$message)))
           stop(e)
         })
       })
@@ -357,7 +578,15 @@ server <- function(input, output, session) {
   # Download Excel Workbook
   output$download_excel <- downloadHandler(
     filename = function() {
-      paste0("Labour_Market_Stats_", format(Sys.Date(), "%Y%m%d"), ".xlsx")
+      label <- get_briefing_label()
+      # Parse to get "Month YY" format
+      parsed <- tryCatch({
+        d <- as.Date(paste0("01 ", label), format = "%d %B %Y")
+        format(d, "%B %y")
+      }, error = function(e) {
+        format(Sys.Date(), "%B %y")
+      })
+      paste0(parsed, " LM Stats.xlsx")
     },
     content = function(file) {
       withProgress(message = "Generating Excel Workbook", value = 0, {
@@ -365,13 +594,11 @@ server <- function(input, output, session) {
           incProgress(0.1, detail = "Loading excel_audit.R...")
           source(excel_script_path)
 
-          incProgress(0.2, detail = "Running calculations...")
+          incProgress(0.3, detail = "Running calculations...")
 
-          incProgress(0.4, detail = "Building Dashboard sheet...")
+          incProgress(0.5, detail = "Building Dashboard sheet...")
 
-          incProgress(0.5, detail = "Building LFS Data sheet...")
-
-          incProgress(0.6, detail = "Building other data sheets...")
+          incProgress(0.7, detail = "Building data sheets...")
 
           create_audit_workbook(
             output_path = file,
@@ -383,7 +610,7 @@ server <- function(input, output, session) {
           incProgress(1.0, detail = "Complete!")
           status(list(type = "success", message = "Excel workbook generated successfully!"))
         }, error = function(e) {
-          status(list(type = "error", message = paste("Error generating Excel:", e$message)))
+          status(list(type = "error", message = paste("Error:", e$message)))
           stop(e)
         })
       })
