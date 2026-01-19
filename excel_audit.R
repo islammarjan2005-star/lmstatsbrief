@@ -251,35 +251,30 @@ build_dashboard_sheet <- function(wb, lfs_period_label, envir = parent.frame()) 
     if (exists(name, envir = envir)) get(name, envir = envir) else NA_real_
   }
   
+  # Metrics matching Word document dashboard exactly
   metrics <- tribble(
     ~Metric, ~type, ~invert, ~italic,
-    "Employment (000s) 16+", "count", FALSE, FALSE,
+    "Employment 16+ (000s)", "count", FALSE, FALSE,
     "Employment rate (16-64)", "rate", FALSE, FALSE,
-    "Unemployment, 16+ (000s)", "count", TRUE, FALSE,
-    "Unemployment rate, 16+", "rate", TRUE, FALSE,
-    "Economic inactivity (000s) (16-64)", "count", TRUE, FALSE,
-    "50-64s inactivity (000s)", "count", TRUE, TRUE,
-    "Economic inactivity rate (16-64)", "rate", TRUE, FALSE,
-    "50-64s inactivity rate", "rate", TRUE, TRUE,
+    "Unemployment 16+ (000s)", "count", TRUE, FALSE,
+    "Unemployment rate (16+)", "rate", TRUE, FALSE,
+    "Inactivity rate (16-64)", "rate", TRUE, FALSE,
     "Vacancies (000s)", "exempt", NA, FALSE,
-    "Payroll employees (000s)", "exempt", FALSE, FALSE,
-    "Annual average wages in cash terms (total pay, incl. bonuses)", "wages", FALSE, FALSE,
-    "Annual average wages adjusted for CPI inflation (total pay, incl. bonuses)", "wages", FALSE, FALSE
+    "Payroll employees (000s)", "count", FALSE, FALSE,
+    "Annual average wages (total pay)", "wages", FALSE, FALSE,
+    "Annual average wages CPI adjusted", "wages", FALSE, FALSE
   )
-  
+
   var_map <- list(
-    "Employment (000s) 16+" = list(cur = "emp16_cur", dq = "emp16_dq", dy = "emp16_dy", dc = "emp16_dc", de = "emp16_de"),
+    "Employment 16+ (000s)" = list(cur = "emp16_cur", dq = "emp16_dq", dy = "emp16_dy", dc = "emp16_dc", de = "emp16_de"),
     "Employment rate (16-64)" = list(cur = "emp_rt_cur", dq = "emp_rt_dq", dy = "emp_rt_dy", dc = "emp_rt_dc", de = "emp_rt_de"),
-    "Unemployment, 16+ (000s)" = list(cur = "unemp16_cur", dq = "unemp16_dq", dy = "unemp16_dy", dc = "unemp16_dc", de = "unemp16_de"),
-    "Unemployment rate, 16+" = list(cur = "unemp_rt_cur", dq = "unemp_rt_dq", dy = "unemp_rt_dy", dc = "unemp_rt_dc", de = "unemp_rt_de"),
-    "Economic inactivity (000s) (16-64)" = list(cur = "inact_cur", dq = "inact_dq", dy = "inact_dy", dc = "inact_dc", de = "inact_de"),
-    "50-64s inactivity (000s)" = list(cur = "inact5064_cur", dq = "inact5064_dq", dy = "inact5064_dy", dc = "inact5064_dc", de = "inact5064_de"),
-    "Economic inactivity rate (16-64)" = list(cur = "inact_rt_cur", dq = "inact_rt_dq", dy = "inact_rt_dy", dc = "inact_rt_dc", de = "inact_rt_de"),
-    "50-64s inactivity rate" = list(cur = "inact5064_rt_cur", dq = "inact5064_rt_dq", dy = "inact5064_rt_dy", dc = "inact5064_rt_dc", de = "inact5064_rt_de"),
+    "Unemployment 16+ (000s)" = list(cur = "unemp16_cur", dq = "unemp16_dq", dy = "unemp16_dy", dc = "unemp16_dc", de = "unemp16_de"),
+    "Unemployment rate (16+)" = list(cur = "unemp_rt_cur", dq = "unemp_rt_dq", dy = "unemp_rt_dy", dc = "unemp_rt_dc", de = "unemp_rt_de"),
+    "Inactivity rate (16-64)" = list(cur = "inact_rt_cur", dq = "inact_rt_dq", dy = "inact_rt_dy", dc = "inact_rt_dc", de = "inact_rt_de"),
     "Vacancies (000s)" = list(cur = "vac_cur", dq = "vac_dq", dy = "vac_dy", dc = "vac_dc", de = "vac_de"),
     "Payroll employees (000s)" = list(cur = "payroll_cur", dq = "payroll_dq", dy = "payroll_dy", dc = "payroll_dc", de = "payroll_de"),
-    "Annual average wages in cash terms (total pay, incl. bonuses)" = list(cur = "latest_wages", dq = "wages_change_q", dy = "wages_change_y", dc = "wages_change_covid", de = "wages_change_election"),
-    "Annual average wages adjusted for CPI inflation (total pay, incl. bonuses)" = list(cur = "latest_wages_cpi", dq = "wages_cpi_change_q", dy = "wages_cpi_change_y", dc = "wages_cpi_change_covid", de = "wages_cpi_change_election")
+    "Annual average wages (total pay)" = list(cur = "latest_wages", dq = "wages_change_q", dy = "wages_change_y", dc = NA, de = NA),
+    "Annual average wages CPI adjusted" = list(cur = "latest_wages_cpi", dq = "wages_cpi_change_q", dy = "wages_cpi_change_y", dc = NA, de = NA)
   )
   
   # Title
@@ -289,9 +284,8 @@ build_dashboard_sheet <- function(wb, lfs_period_label, envir = parent.frame()) 
   writeData(wb, sheet, paste("Generated:", format(Sys.time(), "%d %B %Y %H:%M")), startRow = 2, startCol = 1)
   addStyle(wb, sheet, style_subtitle, rows = 2, cols = 1)
   
-  # Headers
-  headers <- c("Metric", "Current", "Change on quarter", "Change on the year",
-               "Change since Covid-19", "Change since 2024 election")
+  # Headers (matching Word document)
+  headers <- c("", "Current", "QoQ", "YoY", "vs COVID", "vs Election")
   
   header_row <- 4
   for (i in seq_along(headers)) {
