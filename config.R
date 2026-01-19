@@ -1,12 +1,11 @@
-# Reference months - CHANGE THESE FOR EACH RELEASE
+# ==============================================================================
+# CONFIG - Reference periods for comparisons
+# ==============================================================================
+# NOTE: manual_month has been removed - all dates are now determined
+# dynamically from the latest available data in the database.
+# ==============================================================================
 
-manual_month <- "dec2025"
-
-
-manual_month <- tolower(manual_month)
-manual_month_hr1 <- tolower(manual_month_hr1)
-
-# Reference periods for comparisons
+# Reference periods for comparisons (fixed historical dates)
 COVID_LFS_LABEL <- "Dec-Feb 2020"
 COVID_VAC_LABEL <- "Jan-Mar 2020"
 ELECTION_LABEL <- "Apr-Jun 2024"
