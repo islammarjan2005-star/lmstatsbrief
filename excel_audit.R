@@ -842,8 +842,8 @@ fetch_hr1_wide <- function() {
 # ==============================================================================
 
 create_audit_workbook <- function(output_path,
-                                  calculations_path = "utils/calculations.R",
-                                  config_path = "utils/config.R",
+                                  calculations_path = "calculations.R",
+                                  config_path = "config.R",
                                   verbose = TRUE) {
   
   if (verbose) message("Sourcing calculations...")
@@ -986,6 +986,6 @@ create_audit_workbook <- function(output_path,
 }
 
 # ==============================================================================
-# USAGE
+# USAGE (run manually, not on source)
 # ==============================================================================
-create_audit_workbook("LM_Stats_Audit.xlsx")
+# create_audit_workbook("LM_Stats_Audit.xlsx")

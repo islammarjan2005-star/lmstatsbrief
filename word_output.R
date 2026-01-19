@@ -103,12 +103,12 @@ fill_conditional <- function(doc, base, value_text, value_num, invert = FALSE, n
 # MAIN
 # ----------------------------
 
-generate_word_output <- function(template_path = "utils/DB.docx",
-                                 output_path = "utils/DBoutput.docx",
-                                 calculations_path = "utils/calculations.R",
-                                 config_path = "utils/config.R",
-                                 summary_path = "sheets/summary.R",
-                                 top_ten_path = "sheets/top_ten_stats.R",
+generate_word_output <- function(template_path = "DB.docx",
+                                 output_path = "DBoutput.docx",
+                                 calculations_path = "calculations.R",
+                                 config_path = "config.R",
+                                 summary_path = "summary.R",
+                                 top_ten_path = "top_ten_stats.R",
                                  verbose = TRUE) {
 
   # Source calculations (this sources helpers.R, config.R, and all sheets)

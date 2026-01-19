@@ -153,14 +153,14 @@ ui <- fluidPage(
 
 server <- function(input, output, session) {
 
-  # Paths relative to project root
-  config_path       <- "utils/config.R"
-  calculations_path <- "utils/calculations.R"
-  word_script_path  <- "utils/word_output.R"
-  excel_script_path <- "sheets/excel_audit.R"
-  summary_path      <- "sheets/summary.R"
-  top_ten_path      <- "sheets/top_ten_stats.R"
-  template_path     <- "utils/DB.docx"
+  # Paths - all files are in root directory
+  config_path       <- "config.R"
+  calculations_path <- "calculations.R"
+  word_script_path  <- "word_output.R"
+  excel_script_path <- "excel_audit.R"
+  summary_path      <- "summary.R"
+  top_ten_path      <- "top_ten_stats.R"
+  template_path     <- "DB.docx"
 
   # Reactive values
   status <- reactiveVal(list(type = "info", message = "Ready. Click a button to begin."))
@@ -326,23 +326,30 @@ server <- function(input, output, session) {
       paste0("Labour_Market_Briefing_", format(Sys.Date(), "%Y%m%d"), ".docx")
     },
     content = function(file) {
-      status(list(type = "info", message = "Generating Word document..."))
+      withProgress(message = "Generating Word Document", value = 0, {
+        tryCatch({
+          incProgress(0.1, detail = "Loading word_output.R...")
+          source(word_script_path)
 
-      tryCatch({
-        source(word_script_path)
-        generate_word_output(
-          template_path = template_path,
-          output_path = file,
-          calculations_path = calculations_path,
-          config_path = config_path,
-          summary_path = summary_path,
-          top_ten_path = top_ten_path,
-          verbose = TRUE
-        )
-        status(list(type = "success", message = "Word document generated successfully!"))
-      }, error = function(e) {
-        status(list(type = "error", message = paste("Error generating Word:", e$message)))
-        stop(e)
+          incProgress(0.3, detail = "Running calculations...")
+
+          incProgress(0.5, detail = "Building document...")
+          generate_word_output(
+            template_path = template_path,
+            output_path = file,
+            calculations_path = calculations_path,
+            config_path = config_path,
+            summary_path = summary_path,
+            top_ten_path = top_ten_path,
+            verbose = TRUE
+          )
+
+          incProgress(1.0, detail = "Complete!")
+          status(list(type = "success", message = "Word document generated successfully!"))
+        }, error = function(e) {
+          status(list(type = "error", message = paste("Error generating Word:", e$message)))
+          stop(e)
+        })
       })
     }
   )
@@ -353,20 +360,32 @@ server <- function(input, output, session) {
       paste0("Labour_Market_Stats_", format(Sys.Date(), "%Y%m%d"), ".xlsx")
     },
     content = function(file) {
-      status(list(type = "info", message = "Generating Excel workbook..."))
+      withProgress(message = "Generating Excel Workbook", value = 0, {
+        tryCatch({
+          incProgress(0.1, detail = "Loading excel_audit.R...")
+          source(excel_script_path)
 
-      tryCatch({
-        source(excel_script_path)
-        create_audit_workbook(
-          output_path = file,
-          calculations_path = calculations_path,
-          config_path = config_path,
-          verbose = TRUE
-        )
-        status(list(type = "success", message = "Excel workbook generated successfully!"))
-      }, error = function(e) {
-        status(list(type = "error", message = paste("Error generating Excel:", e$message)))
-        stop(e)
+          incProgress(0.2, detail = "Running calculations...")
+
+          incProgress(0.4, detail = "Building Dashboard sheet...")
+
+          incProgress(0.5, detail = "Building LFS Data sheet...")
+
+          incProgress(0.6, detail = "Building other data sheets...")
+
+          create_audit_workbook(
+            output_path = file,
+            calculations_path = calculations_path,
+            config_path = config_path,
+            verbose = TRUE
+          )
+
+          incProgress(1.0, detail = "Complete!")
+          status(list(type = "success", message = "Excel workbook generated successfully!"))
+        }, error = function(e) {
+          status(list(type = "error", message = paste("Error generating Excel:", e$message)))
+          stop(e)
+        })
       })
     }
   )
